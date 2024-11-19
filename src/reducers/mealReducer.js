@@ -19,7 +19,8 @@ export const initialState = {
     // Búsqueda
     searchResults: null,
     searchLoading: false,
-    searchError: null
+    searchError: null,
+    hasSearched: false
 };
 
 export function mealReducer(state = initialState, action) {
@@ -88,7 +89,8 @@ export function mealReducer(state = initialState, action) {
         case actions.SET_SEARCH_RESULTS:
             return {
                 ...state,
-                searchResults: action.payload
+                searchResults: action.payload,
+                hasSearched: true
             };
         case actions.CLEAR_MEALS:
             return {
@@ -96,6 +98,7 @@ export function mealReducer(state = initialState, action) {
                 categoryMeals: [],
                 meal: null,
                 searchResults: null,
+                hasSearched: false,
                 categoryMealsError: null,
                 mealError: null,
                 searchError: null

@@ -10,11 +10,13 @@ const HomePage = () => {
 
   return (
     <main className='main-content'>
-      {searchResults && <MealList meals={searchResults} />}
+      {searchResults && searchResults.length > 0 && <MealList meals={searchResults} />}
       
-      <div className='categories-section'>
-        {categoryLoading ? <Loader /> : <CategoryList categories={categories} />}
-      </div>
+      {(!searchResults || searchResults.length === 0) && (
+        <div className='categories-section'>
+          {categoryLoading ? <Loader /> : <CategoryList categories={categories} />}
+        </div>
+      )}
     </main>
   );
 }
