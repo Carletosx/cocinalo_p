@@ -22,24 +22,111 @@
             border-radius: 4px 4px 0 0;
             overflow: hidden;
             border: 1px solid rgba(0, 0, 0, 0.1);
+            height: 200px;
+            width: 100%;
+
+            img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                transition: transform 0.3s ease;
+
+                &:hover {
+                    transform: scale(1.05);
+                }
+            }
         }
         &-cat{
             position: absolute;
             right: 12px;
             top: 12px;
-            padding: 0 18px;
-            border-radius: 16px;
-            font-size: 13px;
-            background-color: $clr-white;
-            box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            
+            &.bg-orange {
+                &[data-difficulty="Fácil"] {
+                    background-color: #e8f5e9;
+                    color: #2e7d32 !important;
+                }
+                
+                &[data-difficulty="Media"] {
+                    background-color: #fff3e0;
+                    color: #ef6c00 !important;
+                }
+                
+                &[data-difficulty="Difícil"] {
+                    background-color: #ffebee;
+                    color: #c62828 !important;
+                }
+            }
         }
 
         &-body{
+            padding: 12px;
+            background-color: $clr-white;
             border-radius: 0 0 4px 4px;
             &-info{
-                padding: 6px 6px 6px 12px;
                 .area{
                     opacity: 0.6;
+                    margin-bottom: 4px;
+                }
+                
+                .meal{
+                    font-size: 16px;
+                    margin-bottom: 8px;
+                    line-height: 1.3;
+                }
+
+                .description {
+                    font-size: 14px;
+                    color: rgba(0, 0, 0, 0.7);
+                    display: -webkit-box;
+                    -webkit-line-clamp: 2;
+                    -webkit-box-orient: vertical;
+                    overflow: hidden;
+                    line-height: 1.4;
+                }
+
+                .meal-info {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    margin: 8px 0;
+                    font-size: 14px;
+
+                    .prep-time {
+                        display: flex;
+                        align-items: center;
+                        gap: 4px;
+                        color: #666;
+
+                        .icon {
+                            color: $clr-orange;
+                        }
+                    }
+
+                    .difficulty {
+                        padding: 4px 12px;
+                        border-radius: 15px;
+                        font-weight: 500;
+                        
+                        &[data-difficulty="Fácil"] {
+                            background-color: #e8f5e9;
+                            color: #2e7d32;
+                        }
+                        
+                        &[data-difficulty="Media"] {
+                            background-color: #fff3e0;
+                            color: #ef6c00;
+                        }
+                        
+                        &[data-difficulty="Difícil"] {
+                            background-color: #ffebee;
+                            color: #c62828;
+                        }
+                    }
                 }
             }
         }

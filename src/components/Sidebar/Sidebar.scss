@@ -2,16 +2,16 @@
 
 .sidebar{
     position: fixed;
-    right: 0;
     top: 0;
-    width: 100%;
+    left: 0;
+    width: 300px;
     height: 100%;
     background-color: $clr-white;
+    box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;
+    transform: translateX(-100%);
     z-index: 1000;
-    padding: 24px;
-    box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
-    transform: translateX(100%);
     transition: $transition;
+    padding: 2rem;
 
     &-visible{
         transform: translateX(0);
@@ -19,34 +19,38 @@
 
     .navbar-hide-btn{
         position: absolute;
-        right: 14px;
-        color: $clr-orange;
+        right: 2rem;
+        top: 2rem;
         transition: $transition;
 
         &:hover{
-            color: $clr-dark;
+            color: $clr-orange;
         }
     }
 
     .side-content{
-        .side-nav{
-            margin-top: 4rem;
-            .side-item{
-                padding: 6px 0;
-                border-bottom: 0.5px solid rgba(0, 0, 0, 0.06);
+        margin-top: 5rem;
+    }
 
-                .side-link{
-                    opacity: 0.9;
-                    transition: $transition;
-                    &:hover{
-                        color: $clr-orange;
-                    }
+    .side-nav{
+        .side-item{
+            padding: 0.8rem 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+
+            &:last-child{
+                border-bottom: none;
+            }
+
+            .side-link{
+                font-size: 1.1rem;
+                transition: $transition;
+                font-weight: 500;
+
+                &:hover{
+                    color: $clr-orange;
+                    margin-left: 10px;
                 }
             }
         }
-    }
-
-    @media screen and (min-width: 576px){
-        width: 280px;
     }
 }

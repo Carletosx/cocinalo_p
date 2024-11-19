@@ -1,40 +1,60 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState } from 'react';
+import { searchRecipes } from '../../api/recipesApi';
 import "./Header.scss";
 import { BsSearch } from "react-icons/bs";
-import { useMealContext } from '../../context/mealContext';
 import { useNavigate } from 'react-router-dom';
-import { startFetchMealsBySearch } from '../../actions/mealsActions';
+import { useMealContext } from '../../context/mealContext';
+import Alert from '../Alert/Alert';
 
 const SearchForm = () => {
-  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
-  const [errorMsg, setErrorMsg] = useState("");
-  const { dispatch, meals } = useMealContext();
+  const [showAlert, setShowAlert] = useState(false);
+  const navigate = useNavigate();
+  const { dispatch } = useMealContext();
 
-  const handleSearchTerm = (e) => {
+  const handleSearch = async (e) => {
     e.preventDefault();
-    if((e.target.value.replace(/[^\w\s]/gi, "")).length !== 0){
-      setSearchTerm(e.target.value);
-      setErrorMsg("");
-    } else {
-      setErrorMsg("Invalid search term ...");
+    if (!searchTerm.trim()) return;
+
+    try {
+      const data = await searchRecipes(searchTerm);
+      
+      if (!data || data.length === 0) {
+        setShowAlert(true);
+        return;
+      }
+
+      dispatch({ type: 'SET_SEARCH_RESULTS', payload: data });
+      navigate('/', { replace: true });
+    } catch (error) {
+      console.error('Error al buscar recetas:', error);
+      setShowAlert(true);
     }
-  }
-
-  const handleSearchResult = (e) => {
-    e.preventDefault();
-    navigate("/");
-    startFetchMealsBySearch(dispatch, searchTerm);
-  }
+  };
 
   return (
-    <form className='search-form flex align-center' onSubmit={(e) => handleSearchResult(e)}>
-      <input type = "text" className='form-control-input text-dark-gray fs-15' placeholder='Search recipes here ...' onChange={(e) => handleSearchTerm(e)} />
-      <button type = "submit" className='form-submit-btn text-white text-uppercase fs-14'>
-        <BsSearch className='btn-icon' size = {20} />
-      </button>
-    </form>
-  )
-}
+    <>
+      <form className='search-form flex align-center' onSubmit={handleSearch}>
+        <input
+          type="text"
+          className='form-control-input text-dark-gray fs-15'
+          placeholder='Busca tu receta aquí ...'
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+        <button type="submit" className='form-submit-btn text-white text-uppercase fs-14'>
+          <BsSearch className='btn-icon' size={20} />
+        </button>
+      </form>
 
-export default SearchForm
+      {showAlert && (
+        <Alert
+          message={`No se encontraron recetas que coincidan con "${searchTerm}"`}
+          onClose={() => setShowAlert(false)}
+        />
+      )}
+    </>
+  );
+};
+
+export default SearchForm;

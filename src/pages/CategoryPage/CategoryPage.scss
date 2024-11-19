@@ -2,8 +2,71 @@
 .cat-description{
     background-color: rgba(0, 0, 0, 0.02);
     border: 1px solid $clr-orange;
+    margin-bottom: 2rem;
+    border-radius: 8px;
+    
     p{
         margin-top: 12px;
     }
+}
+
+// Estilos para las imágenes de categoría
+.category-grid {
+    display: grid;
+    gap: 2rem;
     
+    @media screen and (min-width: 420px){
+        grid-template-columns: repeat(2, 1fr);
+    }
+    @media screen and (min-width: 768px){
+        grid-template-columns: repeat(3, 1fr);
+    }
+    @media screen and (min-width: 992px){
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+    .category-item {
+        position: relative;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: rgba(99, 99, 99, 0.09) 0px 2px 8px 0px;
+
+        &-img {
+            height: 220px; // Altura fija para todas las imágenes
+            width: 100%;
+            position: relative;
+            
+            img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                transition: transform 0.3s ease;
+            }
+
+            &:hover img {
+                transform: scale(1.05);
+            }
+        }
+
+        &-content {
+            padding: 1rem;
+            background-color: $clr-white;
+            
+            h3 {
+                font-size: 1.2rem;
+                margin-bottom: 0.5rem;
+                color: $clr-orange;
+            }
+
+            p {
+                font-size: 0.9rem;
+                color: rgba(0, 0, 0, 0.7);
+                line-height: 1.4;
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }
+        }
+    }
 }

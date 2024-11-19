@@ -1,0 +1,141 @@
+@import "../../App.scss";
+
+.navbar {
+    background-color: $clr-orange;
+    padding: 1rem 0;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 1rem;
+    }
+
+    .navbar-content {
+        .nav-left {
+            .sidebar-show-btn {
+                background: none;
+                border: none;
+                color: $clr-white;
+                cursor: pointer;
+                padding: 0.5rem;
+                border-radius: 50%;
+                transition: all 0.3s ease;
+
+                &:hover {
+                    background-color: rgba($clr-white, 0.1);
+                }
+            }
+        }
+
+        .nav-center {
+            .navbar-brand {
+                text-decoration: none;
+                
+                span {
+                    color: $clr-white;
+                    font-size: 1.5rem;
+                    font-weight: 700;
+                    letter-spacing: 1px;
+                }
+            }
+        }
+
+        .nav-right {
+            .user-actions {
+                gap: 1.5rem;
+
+                .nav-link {
+                    color: $clr-white;
+                    text-decoration: none;
+                    padding: 0.5rem 1rem;
+                    border-radius: 20px;
+                    transition: all 0.3s ease;
+                    background-color: rgba($clr-white, 0.1);
+
+                    &:hover {
+                        background-color: rgba($clr-white, 0.2);
+                        transform: translateY(-2px);
+                    }
+                }
+
+                .user-name {
+                    color: $clr-white;
+                    font-weight: 500;
+                    padding: 0.5rem 1rem;
+                    background-color: rgba($clr-white, 0.15);
+                    border-radius: 20px;
+                }
+
+                .btn-logout {
+                    border: 2px solid rgba($clr-white, 0.3);
+                    background-color: transparent;
+                    cursor: pointer;
+
+                    &:hover {
+                        background-color: $clr-white;
+                        color: $clr-orange;
+                        border-color: $clr-white;
+                    }
+                }
+            }
+
+            .auth-buttons {
+                gap: 1rem;
+
+                .nav-link {
+                    color: $clr-white;
+                    text-decoration: none;
+                    padding: 0.5rem 1rem;
+                    border-radius: 20px;
+                    transition: all 0.3s ease;
+
+                    &:hover {
+                        background-color: rgba($clr-white, 0.1);
+                    }
+                }
+
+                .btn-register {
+                    background-color: $clr-white;
+                    color: $clr-orange;
+
+                    &:hover {
+                        transform: translateY(-2px);
+                        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                    }
+                }
+            }
+        }
+    }
+}
+
+// Utilidades flex
+.flex {
+    display: flex;
+}
+
+.align-center {
+    align-items: center;
+}
+
+.justify-between {
+    justify-content: space-between;
+}
+
+// Responsive
+@media (max-width: 768px) {
+    .navbar {
+        .nav-right {
+            .user-actions, .auth-buttons {
+                gap: 0.75rem;
+
+                .nav-link, .user-name {
+                    padding: 0.4rem 0.75rem;
+                    font-size: 0.9rem;
+                }
+            }
+        }
+    }
+} 

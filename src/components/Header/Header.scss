@@ -1,47 +1,178 @@
 @import "../../App.scss";
-.navbar{
-    box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
-    height: 60px;
-    position: relative;
-    z-index: 999;
-    transition: $transition;
 
-    .navbar-brand-text{
-        margin-left: 5px;
-    }
-    .navbar-search-btn{
-        margin-right: 12px;
-    }
-}
-
-.scrolled{
+.navbar {
+    background-color: $clr-orange;
+    height: 70px;
+    width: 100%;
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
+    z-index: 999;
+    
+    .container {
+        height: 100%;
+    }
+
+    &-content {
+        height: 100%;
+        padding: 0 2rem;
+    }
+
+    .nav-left {
+        width: 33.33%;
+        .sidebar-show-btn {
+            color: $clr-white;
+            margin-left: 1rem;
+            padding: 0.5rem;
+            transition: $transition;
+            
+            &:hover {
+                opacity: 0.8;
+            }
+        }
+    }
+
+    .nav-center {
+        width: 33.33%;
+        text-align: center;
+        .navbar-brand {
+            font-size: 2.4rem;
+            color: $clr-white;
+            font-weight: 600;
+            letter-spacing: 1px;
+            
+            &:hover {
+                opacity: 0.9;
+            }
+        }
+    }
+
+    .nav-right {
+        width: 33.33%;
+        display: flex;
+        justify-content: flex-end;
+        
+        .auth-buttons {
+            gap: 1rem;
+            
+            .nav-link {
+                color: $clr-white;
+                padding: 0.8rem 1.5rem;
+                border-radius: 4px;
+                font-weight: 500;
+                transition: $transition;
+
+                &.btn-register {
+                    background-color: $clr-white;
+                    color: $clr-orange;
+                    
+                    &:hover {
+                        background-color: darken($clr-white, 10%);
+                    }
+                }
+
+                &:hover {
+                    opacity: 0.9;
+                }
+            }
+        }
+
+        .user-actions {
+            display: flex;
+            align-items: center;
+            gap: 1.2rem;
+
+            .nav-link {
+                color: $clr-white;
+                padding: 0.8rem 1.5rem;
+                border-radius: 4px;
+                font-weight: 500;
+                transition: $transition;
+                background-color: rgba($clr-white, 0.1);
+
+                &:hover {
+                    background-color: rgba($clr-white, 0.2);
+                }
+            }
+
+            .user-name {
+                color: $clr-white;
+                padding: 0.8rem 1.5rem;
+                border-radius: 4px;
+                background-color: rgba($clr-white, 0.15);
+                font-weight: 500;
+            }
+
+            .btn-logout {
+                background-color: transparent;
+                border: 2px solid rgba($clr-white, 0.3);
+                cursor: pointer;
+                padding: 0.8rem 1.5rem;
+                color: $clr-white;
+                border-radius: 4px;
+                font-weight: 500;
+                transition: $transition;
+
+                &:hover {
+                    background-color: $clr-white;
+                    color: $clr-orange;
+                    border-color: $clr-white;
+                }
+            }
+        }
+    }
 }
 
-.header{
-    .header-content{
+// Agregar media queries para responsividad
+@media screen and (max-width: 768px) {
+    .nav-right {
+        .user-actions {
+            gap: 0.8rem;
+
+            .nav-link,
+            .user-name,
+            .btn-logout {
+                padding: 0.6rem 1rem;
+                font-size: 0.9rem;
+            }
+        }
+    }
+}
+
+// Mantener el resto de los estilos igual
+.header {
+    margin-top: 60px; // Para compensar el navbar fijo
+    .header-content {
         height: 400px;
-        background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.7)), url("../../assets/images/header_image.jpg") center/cover no-repeat;
+        background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.7)), 
+                    url("../../assets/images/header_image.jpg") center/cover no-repeat;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
     }
-    .header-title{
-        margin-top: 2.4rem;
+    
+    .header-title {
+        color: $clr-white;
+        font-size: 3.2rem;
+        margin-bottom: 2rem;
     }
 }
 
-.search-form{
-    .form-control-input{
+.search-form {
+    // Mantener los estilos existentes del formulario de búsqueda
+    .form-control-input {
         box-shadow: 0 4px 10px rgb(0 0 0 / 12%), 0 0 1px rgb(0 0 0 / 5%) inset;
         min-width: 300px;
         font-size: 16px;
         height: 55px;
         padding: 0px 3.2rem;
-        border-radius: 2.8rem!important;
+        border-radius: 2.8rem !important;
         margin-right: 1.2rem;
     }
-    .form-submit-btn{
+
+    .form-submit-btn {
         width: 55px;
         height: 55px;
         background-color: $clr-orange;
@@ -49,11 +180,12 @@
         position: relative;
         transition: $transition;
 
-        .btn-icon{
+        .btn-icon {
             transition: $transition;
+            color: $clr-white;
         }
 
-        &:after{
+        &:after {
             content: "";
             position: absolute;
             top: 50%;
@@ -65,8 +197,8 @@
             border-radius: 50%;
         }
 
-        &:hover{
-            .btn-icon{
+        &:hover {
+            .btn-icon {
                 transform: scale(0.9);
                 color: $clr-orange;
             }

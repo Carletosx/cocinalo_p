@@ -1,0 +1,448 @@
+@import "../../App.scss";
+
+.calendar-container {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 20px;
+    background-color: $clr-white;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+    .calendar-content-wrapper {
+        position: relative;
+        width: 100%;
+
+        .calendar-events-loader {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px 25px;
+            border-radius: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+
+            .loader-content {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+
+                .loader-spinner {
+                    display: inline-block;
+                    width: 20px;
+                    height: 20px;
+                    border: 2px solid rgba($clr-orange, 0.3);
+                    border-radius: 50%;
+                    border-top-color: $clr-orange;
+                    animation: spin 1s ease-in-out infinite;
+                }
+
+                p {
+                    color: $clr-orange;
+                    font-weight: 500;
+                    margin: 0;
+                    font-size: 14px;
+                }
+            }
+        }
+    }
+}
+
+// Header del Calendario
+.calendar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 30px;
+    padding: 0 20px;
+
+    h2 {
+        font-size: 24px;
+        font-weight: 600;
+        color: $clr-dark;
+    }
+
+    .month-nav-btn {
+        background: none;
+        border: none;
+        color: $clr-orange;
+        font-size: 24px;
+        cursor: pointer;
+        padding: 8px;
+        border-radius: 50%;
+        transition: all 0.3s ease;
+
+        &:hover {
+            background-color: rgba($clr-orange, 0.1);
+            transform: scale(1.1);
+        }
+    }
+}
+
+// Cuadrícula del Calendario
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 1px;
+    background-color: #eee;
+    border: 1px solid #eee;
+
+    .calendar-day-header {
+        background-color: #f8f8f8;
+        padding: 10px;
+        text-align: center;
+        font-weight: 500;
+    }
+
+    .calendar-day {
+        background-color: white;
+        min-height: 100px;
+        padding: 8px;
+        position: relative;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+
+        &:hover {
+            background-color: #f8f8f8;
+        }
+
+        .date-number {
+            font-size: 14px;
+            font-weight: 500;
+            color: #666;
+        }
+
+        &.today {
+            .date-number {
+                background-color: #ff6b6b;
+                color: white;
+                width: 24px;
+                height: 24px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 50%;
+            }
+        }
+
+        .events-container {
+            margin-top: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            max-height: 120px;
+            overflow-y: auto;
+        }
+
+        .event-item {
+            background-color: rgba(255, 107, 107, 0.1);
+            border-left: 3px solid #ff6b6b;
+            padding: 6px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+
+            .event-content {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .event-title {
+                color: #ff6b6b;
+                font-weight: 500;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+
+            .event-time {
+                font-size: 10px;
+                color: #666;
+            }
+
+            .delete-event {
+                background: none;
+                border: none;
+                color: #666;
+                cursor: pointer;
+                padding: 2px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 50%;
+                transition: all 0.2s ease;
+
+                &:hover {
+                    color: #ff4444;
+                    background-color: rgba(255, 68, 68, 0.1);
+                }
+            }
+        }
+    }
+}
+
+// Eventos
+.event-item {
+    background-color: rgba($clr-orange, 0.1);
+    border-left: 3px solid $clr-orange;
+    padding: 6px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: all 0.3s ease;
+
+    &:hover {
+        background-color: rgba($clr-orange, 0.15);
+    }
+
+    .event-title {
+        flex: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        color: darken($clr-orange, 20%);
+    }
+
+    .delete-event {
+        background: none;
+        border: none;
+        color: rgba($clr-dark, 0.5);
+        cursor: pointer;
+        padding: 2px;
+        margin-left: 4px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+
+        &:hover {
+            color: red;
+            background-color: rgba(red, 0.1);
+        }
+    }
+}
+
+// Formulario de Eventos
+.event-form-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba($clr-dark, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    animation: fadeIn 0.3s ease;
+}
+
+.event-form {
+    background-color: $clr-white;
+    padding: 30px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+    animation: slideUp 0.3s ease;
+
+    h3 {
+        color: $clr-orange;
+        margin-bottom: 20px;
+        font-size: 20px;
+        font-weight: 600;
+    }
+
+    .close-btn {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: none;
+        border: none;
+        color: rgba($clr-dark, 0.5);
+        cursor: pointer;
+        padding: 8px;
+        border-radius: 50%;
+        transition: all 0.3s ease;
+
+        &:hover {
+            color: $clr-dark;
+            background-color: rgba($clr-dark, 0.1);
+        }
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: $clr-dark;
+            font-weight: 500;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid rgba($clr-dark, 0.2);
+            border-radius: 6px;
+            font-size: 14px;
+
+            &:focus {
+                outline: none;
+                border-color: $clr-orange;
+            }
+        }
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+    }
+
+    .submit-btn {
+        width: 100%;
+        padding: 12px;
+        background-color: $clr-orange;
+        color: $clr-white;
+        border: none;
+        border-radius: 6px;
+        font-size: 16px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+
+        &:hover {
+            background-color: darken($clr-orange, 10%);
+        }
+    }
+
+    select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid rgba($clr-dark, 0.2);
+        border-radius: 6px;
+        font-size: 14px;
+        background-color: $clr-white;
+
+        &:focus {
+            outline: none;
+            border-color: $clr-orange;
+        }
+    }
+
+    input[type="text"] {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid rgba($clr-dark, 0.2);
+        border-radius: 6px;
+        font-size: 14px;
+        transition: all 0.3s ease;
+
+        &::placeholder {
+            color: rgba($clr-dark, 0.4);
+        }
+
+        &:focus {
+            outline: none;
+            border-color: $clr-orange;
+            box-shadow: 0 0 0 2px rgba($clr-orange, 0.1);
+        }
+    }
+}
+
+// Animaciones
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+// Responsive
+@media screen and (max-width: 768px) {
+    .calendar-container {
+        margin: 20px 10px;
+        padding: 15px;
+    }
+
+    .calendar-day {
+        min-height: 100px;
+        font-size: 12px;
+    }
+
+    .calendar-header h2 {
+        font-size: 20px;
+    }
+
+    .event-form {
+        width: 95%;
+        padding: 20px;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+}
+
+// Estilos para días especiales
+.calendar-day {
+    &.today {
+        background-color: rgba($clr-orange, 0.05);
+        border: 2px solid $clr-orange;
+        
+        .date-number {
+            background-color: $clr-orange;
+            color: $clr-white;
+            padding: 2px 6px;
+            border-radius: 12px;
+            font-weight: bold;
+        }
+    }
+
+    &.weekend {
+        background-color: rgba($clr-dark, 0.02);
+    }
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+// Mejorar la responsividad
+@media screen and (max-width: 480px) {
+    .calendar-grid {
+        font-size: 12px;
+    }
+
+    .calendar-day {
+        min-height: 80px;
+        padding: 4px;
+    }
+
+    .event-item {
+        padding: 4px;
+        font-size: 10px;
+    }
+} 

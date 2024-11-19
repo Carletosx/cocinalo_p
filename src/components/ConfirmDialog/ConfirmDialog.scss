@@ -1,0 +1,99 @@
+.confirm-dialog-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    backdrop-filter: blur(4px);
+}
+
+.confirm-dialog {
+    background-color: white;
+    border-radius: 12px;
+    padding: 40px;
+    width: 90%;
+    max-width: 600px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    animation: slideIn 0.3s ease-out;
+
+    .confirm-dialog-content {
+        h3 {
+            margin: 0 0 30px 0;
+            color: #333;
+            font-size: 2.5rem;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        p {
+            margin: 0 0 40px 0;
+            color: #444;
+            font-size: 1.8rem;
+            line-height: 1.6;
+            text-align: center;
+        }
+
+        .confirm-dialog-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+
+            button {
+                padding: 16px 36px;
+                border-radius: 10px;
+                font-size: 1.5rem;
+                font-weight: 500;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                border: none;
+                min-width: 160px;
+
+                &.confirm-button {
+                    background-color: #ff4444;
+                    color: white;
+
+                    &:hover {
+                        background-color: #ff2020;
+                        transform: translateY(-2px);
+                        box-shadow: 0 4px 12px rgba(255, 68, 68, 0.2);
+                    }
+
+                    &:active {
+                        transform: translateY(0);
+                    }
+                }
+
+                &.cancel-button {
+                    background-color: #f0f0f0;
+                    color: #444;
+
+                    &:hover {
+                        background-color: #e0e0e0;
+                        transform: translateY(-2px);
+                        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                    }
+
+                    &:active {
+                        transform: translateY(0);
+                    }
+                }
+            }
+        }
+    }
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-30px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+} 

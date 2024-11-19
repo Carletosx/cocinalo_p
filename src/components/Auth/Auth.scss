@@ -1,0 +1,121 @@
+@import "../../App.scss";
+
+.auth-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background-color: $clr-whitesmoke;
+}
+
+.auth-card {
+    background-color: $clr-white;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+
+    h2 {
+        color: $clr-orange;
+        text-align: center;
+        margin-bottom: 30px;
+        font-size: 24px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: $clr-dark;
+            font-weight: 500;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid rgba($clr-dark, 0.2);
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+
+            &:focus {
+                outline: none;
+                border-color: $clr-orange;
+            }
+        }
+    }
+
+    .auth-button {
+        width: 100%;
+        padding: 14px;
+        background-color: $clr-orange;
+        color: $clr-white;
+        border: none;
+        border-radius: 6px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+
+        &:hover {
+            background-color: darken($clr-orange, 10%);
+        }
+    }
+
+    .error-message {
+        background-color: rgba(red, 0.1);
+        color: red;
+        padding: 12px;
+        border-radius: 6px;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 20px;
+
+    @media (max-width: 480px) {
+        grid-template-columns: 1fr;
+    }
+}
+
+.auth-links {
+    margin-top: 20px;
+    text-align: center;
+    color: $clr-dark;
+
+    .link {
+        color: $clr-orange;
+        cursor: pointer;
+        text-decoration: underline;
+        
+        &:hover {
+            color: darken($clr-orange, 10%);
+        }
+    }
+}
+
+.password-requirements {
+    font-size: 12px;
+    color: rgba($clr-dark, 0.7);
+    margin-top: 5px;
+}
+
+// Animación para mensajes de error
+.error-message {
+    animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+} 

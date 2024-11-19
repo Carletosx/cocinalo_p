@@ -1,1 +1,135 @@
 @import "../../App.scss";
+
+.main-content {
+    padding: 40px 20px;
+    background-color: $clr-whitesmoke;
+}
+
+.details-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: $clr-white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: rgba(0, 0, 0, 0.05) 0px 4px 12px;
+}
+
+.recipe-title {
+    font-size: 32px;
+    color: $clr-orange;
+    margin-bottom: 30px;
+    font-weight: 700;
+}
+
+.recipe-details {
+    display: grid;
+    gap: 40px;
+    margin-bottom: 40px;
+    
+    @media screen and (min-width: 768px) {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+.recipe-image {
+    width: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
+    
+    img {
+        width: 100%;
+        height: 400px;
+        object-fit: cover;
+        display: block;
+    }
+}
+
+.recipe-info {
+    .category-info {
+        margin-bottom: 20px;
+        
+        .label {
+            font-weight: 600;
+            color: $clr-dark;
+            margin-right: 10px;
+        }
+        
+        .value {
+            color: $clr-green;
+            font-weight: 500;
+        }
+    }
+
+    .difficulty {
+        display: inline-block;
+        padding: 6px 16px;
+        background-color: rgba($clr-orange, 0.1);
+        color: $clr-orange;
+        border-radius: 20px;
+        font-weight: 500;
+        margin-bottom: 20px;
+    }
+}
+
+.ingredients-section {
+    background-color: rgba($clr-orange, 0.05);
+    padding: 25px;
+    border-radius: 12px;
+    margin-top: 30px;
+
+    h3 {
+        color: $clr-orange;
+        font-size: 24px;
+        margin-bottom: 20px;
+        font-weight: 600;
+    }
+
+    .ingredients-grid {
+        display: grid;
+        gap: 15px;
+        
+        @media screen and (min-width: 576px) {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        @media screen and (min-width: 992px) {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .ingredient-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 15px;
+            background-color: $clr-white;
+            border-radius: 8px;
+            box-shadow: rgba(0, 0, 0, 0.05) 0px 2px 8px;
+        }
+    }
+}
+
+.instructions-section {
+    margin-top: 30px;
+    padding: 25px;
+
+    h3 {
+        color: $clr-orange;
+        font-size: 24px;
+        margin-bottom: 20px;
+        font-weight: 600;
+    }
+
+    .instruction-list {
+        list-style-type: none;
+        padding: 0;
+
+        li {
+            margin-bottom: 15px;
+            padding: 15px;
+            background-color: $clr-white;
+            border-radius: 8px;
+            box-shadow: rgba(0, 0, 0, 0.05) 0px 2px 8px;
+        }
+    }
+}
