@@ -6,22 +6,22 @@ const CalendarEvent = {
             console.log('Buscando eventos para usuario:', userId);
             const [rows] = await db.execute(`
                 SELECT 
-                    id,
-                    user_id,
-                    title,
-                    day,
-                    month,
-                    year,
-                    time_from as timeFrom,
-                    time_to as timeTo,
-                    created_at as createdAt
-                FROM calendar_events 
-                WHERE user_id = ? 
-                ORDER BY year, month, day, time_from ASC`,
+                    ce.id,
+                    ce.user_id,
+                    ce.title,
+                    ce.day,
+                    ce.month,
+                    ce.year,
+                    ce.time_from as timeFrom,
+                    ce.time_to as timeTo,
+                    ce.recipe_id as recipeId,
+                    ce.created_at as createdAt
+                FROM calendar_events ce
+                WHERE ce.user_id = ? 
+                ORDER BY ce.year, ce.month, ce.day, ce.time_from ASC`,
                 [userId]
             );
 
-            // Formatear los datos para el frontend
             return rows.map(event => ({
                 id: event.id,
                 title: event.title,
@@ -29,7 +29,8 @@ const CalendarEvent = {
                 month: parseInt(event.month),
                 year: parseInt(event.year),
                 timeFrom: event.timeFrom,
-                timeTo: event.timeTo
+                timeTo: event.timeTo,
+                recipeId: event.recipeId
             }));
         } catch (error) {
             console.error('Error en getByUserId:', error);
@@ -39,25 +40,42 @@ const CalendarEvent = {
 
     create: async (userId, eventData) => {
         try {
-            console.log('Creando evento para usuario:', userId);
-            const { title, day, month, year, timeFrom, timeTo } = eventData;
-            
+            const { title, day, month, year, timeFrom, timeTo, recipeId } = eventData;
+
+            // Formatear las horas para asegurar formato HH:mm
+            const formatTime = (time) => {
+                return time.split(':').slice(0, 2).join(':');
+            };
+
+            const formattedTimeFrom = formatTime(timeFrom);
+            const formattedTimeTo = formatTime(timeTo);
+
             const [result] = await db.execute(
                 `INSERT INTO calendar_events 
-                (user_id, title, day, month, year, time_from, time_to) 
-                VALUES (?, ?, ?, ?, ?, ?, ?)`,
-                [userId, title, day, month, year, timeFrom, timeTo]
+                (user_id, title, day, month, year, time_from, time_to, recipe_id) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+                [
+                    userId, 
+                    title, 
+                    parseInt(day), 
+                    parseInt(month), 
+                    parseInt(year), 
+                    formattedTimeFrom,
+                    formattedTimeTo, 
+                    recipeId || null
+                ]
             );
 
             return {
                 id: result.insertId,
-                user_id: userId,
+                userId,
                 title,
                 day: parseInt(day),
                 month: parseInt(month),
                 year: parseInt(year),
-                timeFrom,
-                timeTo
+                timeFrom: formattedTimeFrom,
+                timeTo: formattedTimeTo,
+                recipeId: recipeId || null
             };
         } catch (error) {
             console.error('Error en create:', error);

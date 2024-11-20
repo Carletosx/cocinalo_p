@@ -6,26 +6,43 @@ import './EventForm.scss';
 
 const EventForm = ({ selectedDate, currentDate, recipeName, onSubmit, onClose }) => {
     const { categoryMeals } = useMealContext();
-    const [formData, setFormData] = useState({
-        title: recipeName || '',
-        date: formatDateForInput(new Date(currentDate.getFullYear(), currentDate.getMonth(), selectedDate)),
-        timeFrom: '',
-        timeTo: ''
+    const [formData, setFormData] = useState(() => {
+        const initialDate = formatDateForInput(
+            new Date(currentDate.getFullYear(), currentDate.getMonth(), selectedDate)
+        );
+        
+        return {
+            title: recipeName || '',
+            date: initialDate,
+            timeFrom: '',
+            timeTo: ''
+        };
     });
 
     const [showSuggestions, setShowSuggestions] = useState(false);
     const [alert, setAlert] = useState({ show: false, message: '', type: '' });
 
     function formatDateForInput(date) {
-        const d = new Date(date);
-        let month = '' + (d.getMonth() + 1);
-        let day = '' + d.getDate();
-        const year = d.getFullYear();
+        try {
+            const d = new Date(date);
+            
+            if (isNaN(d.getTime())) {
+                console.error('Fecha inválida:', date);
+                return new Date().toISOString().split('T')[0];
+            }
 
-        if (month.length < 2) month = '0' + month;
-        if (day.length < 2) day = '0' + day;
+            let month = (d.getMonth() + 1).toString();
+            let day = d.getDate().toString();
+            const year = d.getFullYear();
 
-        return [year, month, day].join('-');
+            month = month.padStart(2, '0');
+            day = day.padStart(2, '0');
+
+            return `${year}-${month}-${day}`;
+        } catch (error) {
+            console.error('Error al formatear fecha:', error);
+            return new Date().toISOString().split('T')[0];
+        }
     }
 
     const handleDateChange = (e) => {
@@ -51,7 +68,7 @@ const EventForm = ({ selectedDate, currentDate, recipeName, onSubmit, onClose })
     const handleSubmit = (e) => {
         e.preventDefault();
         
-        if (!formData.timeFrom || !formData.timeTo) {
+        if (!formData.date || !formData.timeFrom || !formData.timeTo) {
             setAlert({
                 show: true,
                 message: 'Por favor completa todos los campos',
@@ -60,18 +77,36 @@ const EventForm = ({ selectedDate, currentDate, recipeName, onSubmit, onClose })
             return;
         }
 
-        const selectedDate = new Date(formData.date);
-        
-        const finalData = {
-            title: formData.title,
-            day: selectedDate.getDate(),
-            month: selectedDate.getMonth() + 1,
-            year: selectedDate.getFullYear(),
-            timeFrom: formData.timeFrom,
-            timeTo: formData.timeTo
-        };
+        try {
+            const selectedDate = new Date(formData.date + 'T00:00:00');
+            
+            const timeFrom = formData.timeFrom.split(':').slice(0, 2).join(':');
+            const timeTo = formData.timeTo.split(':').slice(0, 2).join(':');
 
-        onSubmit(finalData);
+            const finalData = {
+                title: formData.title,
+                day: selectedDate.getDate(),
+                month: selectedDate.getMonth() + 1,
+                year: selectedDate.getFullYear(),
+                timeFrom: timeFrom,
+                timeTo: timeTo
+            };
+
+            console.log('Datos a enviar:', {
+                fecha_original: formData.date,
+                fecha_procesada: selectedDate,
+                datos_finales: finalData
+            });
+
+            onSubmit(finalData);
+        } catch (error) {
+            console.error('Error al procesar el formulario:', error);
+            setAlert({
+                show: true,
+                message: 'Error al procesar los datos del formulario',
+                type: 'error'
+            });
+        }
     };
 
     const getSuggestions = (input) => {

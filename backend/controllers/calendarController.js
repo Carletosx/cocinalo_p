@@ -28,12 +28,30 @@ const calendarController = {
             const userId = req.user.id;
             const eventData = req.body;
             
-            console.log('Datos recibidos:', { userId, eventData });
+            console.log('Datos recibidos en createEvent:', {
+                userId,
+                eventData,
+                headers: req.headers
+            });
 
-            if (!eventData.title?.trim()) {
+            // Validar datos requeridos
+            const requiredFields = ['title', 'day', 'month', 'year', 'timeFrom', 'timeTo'];
+            const missingFields = requiredFields.filter(field => !eventData[field]);
+            
+            if (missingFields.length > 0) {
                 return res.status(400).json({
                     success: false,
-                    message: 'El título es requerido'
+                    message: `Faltan campos requeridos: ${missingFields.join(', ')}`
+                });
+            }
+
+            // Validar formato de fecha y hora
+            if (!Number.isInteger(eventData.day) || 
+                !Number.isInteger(eventData.month) || 
+                !Number.isInteger(eventData.year)) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Los campos de fecha deben ser números enteros'
                 });
             }
 
@@ -46,7 +64,13 @@ const calendarController = {
                 message: 'Evento creado exitosamente'
             });
         } catch (error) {
-            console.error('Error al crear evento:', error);
+            console.error('Error detallado en createEvent:', {
+                message: error.message,
+                stack: error.stack,
+                userId: req.user?.id,
+                eventData: req.body
+            });
+            
             res.status(500).json({
                 success: false,
                 message: 'Error al crear evento',

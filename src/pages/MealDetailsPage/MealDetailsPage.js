@@ -8,118 +8,108 @@ import { startFetchSingleMeal } from '../../actions/mealsActions';
 import Loader from '../../components/Loader/Loader';
 import EventForm from '../../components/Calendar/EventForm';
 import Alert from '../../components/Alert/Alert';
-import axios from 'axios';
+import axios from '../../api/axios';
 
 const MealDetailsPage = () => {
-  const { id } = useParams();
-  const [showEventForm, setShowEventForm] = useState(false);
-  const [alert, setAlert] = useState({ show: false, message: '', type: '' });
-  const { categories, dispatch, meal, categoryLoading, mealLoading } = useMealContext();
+    const { id } = useParams();
+    const [showEventForm, setShowEventForm] = useState(false);
+    const [alert, setAlert] = useState({ show: false, message: '', type: '' });
+    const { categories, dispatch, meal, categoryLoading, mealLoading } = useMealContext();
 
-  useEffect(() => {
-    startFetchSingleMeal(dispatch, id);
-  }, [dispatch, id]);
+    useEffect(() => {
+        startFetchSingleMeal(dispatch, id);
+    }, [dispatch, id]);
 
-  const handleScheduleMeal = () => {
-    setShowEventForm(true);
-  };
+    const handleScheduleMeal = () => {
+        setShowEventForm(true);
+    };
 
-  const handleEventSubmit = async (formData) => {
-    try {
-        // Extraer fecha del formData
-        const date = new Date(formData.date);
-        
-        // Preparar los datos en el formato que espera el backend
-        const eventData = {
-            title: meal.nombre_receta,
-            day: date.getDate(),
-            month: date.getMonth() + 1,
-            year: date.getFullYear(),
-            timeFrom: formData.timeFrom,
-            timeTo: formData.timeTo,
-            recipeId: meal.id_receta
-        };
+    const handleEventSubmit = async (formData) => {
+        try {
+            if (!formData || !formData.day || !formData.month || !formData.year || !formData.timeFrom || !formData.timeTo) {
+                throw new Error('Todos los campos son requeridos');
+            }
 
-        console.log('Enviando datos:', eventData);
+            const eventData = {
+                title: meal.nombre_receta,
+                day: formData.day,
+                month: formData.month,
+                year: formData.year,
+                timeFrom: formData.timeFrom,
+                timeTo: formData.timeTo,
+                recipeId: parseInt(meal.id_receta) || null
+            };
 
-        // Usar axios en lugar de fetch para mantener las cookies de sesión
-        const response = await axios.post('/calendar/events', eventData);
+            console.log('Datos a enviar al servidor:', eventData);
 
-        if (response.data.success) {
-            // Actualizar el estado local del calendario
-            const events = JSON.parse(localStorage.getItem('calendarEvents') || '[]');
-            events.push(response.data.data);
-            localStorage.setItem('calendarEvents', JSON.stringify(events));
-
-            setShowEventForm(false);
+            const response = await axios.post('/calendar/events', eventData);
+            
+            if (response.data.success) {
+                setShowEventForm(false);
+                setAlert({
+                    show: true,
+                    message: '¡Receta agendada exitosamente!',
+                    type: 'success'
+                });
+            } else {
+                throw new Error(response.data.message || 'Error al crear evento');
+            }
+        } catch (error) {
+            console.error('Error al crear evento:', {
+                message: error.message,
+                formData,
+                response: error.response?.data
+            });
+            
             setAlert({
                 show: true,
-                message: 'La receta se ha agendado correctamente en el calendario',
-                type: 'success'
+                message: error.message || 'Error al agendar la receta',
+                type: 'error'
             });
-
-            setTimeout(() => {
-                setAlert({ show: false, message: '', type: '' });
-            }, 3000);
-        } else {
-            throw new Error(response.data.message || 'Error al guardar el evento');
         }
-    } catch (error) {
-        console.error('Error completo:', error);
-        setAlert({
-            show: true,
-            message: error.response?.data?.message || 'Hubo un error al agendar la receta. Por favor, intenta nuevamente',
-            type: 'error'
-        });
-    }
-  };
+    };
 
-  if (mealLoading) {
-    return <Loader />;
-  }
+    if (mealLoading) return <Loader />;
+    if (!meal) return <div>No se encontraron detalles de la receta.</div>;
 
-  if (!meal) {
-    return <div>No se encontraron detalles de la receta.</div>;
-  }
+    const singleMeal = {
+        id: meal.id_receta,
+        nombre_receta: meal.nombre_receta,
+        nombre_categoria: meal.nombre_categoria,
+        imagen_url: meal.imagen_url,
+        dificultad: meal.dificultad,
+        ingredientes: meal.ingredientes,
+        instrucciones: meal.instrucciones
+    };
 
-  const singleMeal = {
-    id: meal.id_receta,
-    nombre_receta: meal.nombre_receta,
-    nombre_categoria: meal.nombre_categoria,
-    imagen_url: meal.imagen_url,
-    dificultad: meal.dificultad,
-    ingredientes: meal.ingredientes,
-    instrucciones: meal.instrucciones
-  };
+    return (
+        <main className='main-content bg-whitesmoke'>
+            <MealSingle 
+                meal={singleMeal} 
+                onSchedule={handleScheduleMeal}
+            />
+            
+            {showEventForm && (
+                <EventForm
+                    selectedDate={new Date().getDate()}
+                    currentDate={new Date()}
+                    recipeName={meal.nombre_receta}
+                    onSubmit={handleEventSubmit}
+                    onClose={() => setShowEventForm(false)}
+                />
+            )}
 
-  return (
-    <main className='main-content bg-whitesmoke'>
-      <MealSingle 
-        meal={singleMeal} 
-        onSchedule={handleScheduleMeal}
-      />
-      
-      {showEventForm && (
-        <EventForm
-          selectedDate={new Date().getDate()}
-          currentDate={new Date()}
-          recipeName={meal.nombre_receta}
-          onSubmit={handleEventSubmit}
-          onClose={() => setShowEventForm(false)}
-        />
-      )}
+            {alert.show && (
+                <Alert
+                    message={alert.message}
+                    type={alert.type}
+                    onClose={() => setAlert({ show: false, message: '', type: '' })}
+                />
+            )}
 
-      {alert.show && (
-        <Alert
-          message={alert.message}
-          type={alert.type}
-          onClose={() => setAlert({ show: false, message: '', type: '' })}
-        />
-      )}
-
-      {categoryLoading ? <Loader /> : <CategoryList categories={categories} />}
-    </main>
-  );
-}
+            {categoryLoading ? <Loader /> : <CategoryList categories={categories} />}
+        </main>
+    );
+};
 
 export default MealDetailsPage;
