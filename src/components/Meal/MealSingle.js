@@ -3,8 +3,9 @@ import "./Meal.scss";
 import { AiFillHome, AiOutlineCheckSquare } from "react-icons/ai";
 import { Link } from "react-router-dom";
 import { BiChevronsRight } from "react-icons/bi";
+import { BsCalendarPlus } from "react-icons/bs";
 
-const MealSingle = ({ meal }) => {
+const MealSingle = ({ meal, onSchedule }) => {
   if (!meal || Object.keys(meal).length === 0) {
     return <div>No se encontraron datos de la receta.</div>;
   }
@@ -64,6 +65,14 @@ const MealSingle = ({ meal }) => {
                   ))}
                 </ul>
               </div>
+
+              <button 
+                className="schedule-button flex align-center justify-center"
+                onClick={onSchedule}
+              >
+                <BsCalendarPlus size={20} className="mr-2" />
+                Agendar esta receta
+              </button>
             </div>
           </div>
 

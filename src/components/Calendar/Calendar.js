@@ -22,16 +22,29 @@ const Calendar = () => {
     useEffect(() => {
         const fetchRecipes = async () => {
             try {
+                const token = localStorage.getItem('token');
+                console.log('Token disponible:', !!token);
+                
+                console.log('Iniciando petición GET a /calendar/events');
                 const response = await axios.get('/calendar/events');
                 console.log('Respuesta del servidor:', response.data);
+                
                 if (response?.data?.data) {
+                    console.log('Recetas recibidas:', response.data.data);
                     setRecipes(response.data.data);
+                } else {
+                    console.warn('No hay datos en la respuesta');
                 }
             } catch (error) {
-                console.error('Error completo:', error);
+                console.error('Error detallado:', {
+                    message: error.message,
+                    response: error.response?.data,
+                    status: error.response?.status,
+                    headers: error.config?.headers
+                });
                 setAlert({
                     show: true,
-                    message: 'Error al cargar las recetas',
+                    message: error.response?.data?.message || 'Error al cargar las recetas',
                     type: 'error'
                 });
             }

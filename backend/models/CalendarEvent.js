@@ -4,11 +4,33 @@ const CalendarEvent = {
     getByUserId: async (userId) => {
         try {
             console.log('Buscando eventos para usuario:', userId);
-            const [rows] = await db.execute(
-                'SELECT * FROM calendar_events WHERE user_id = ? ORDER BY time_from ASC',
+            const [rows] = await db.execute(`
+                SELECT 
+                    id,
+                    user_id,
+                    title,
+                    day,
+                    month,
+                    year,
+                    time_from as timeFrom,
+                    time_to as timeTo,
+                    created_at as createdAt
+                FROM calendar_events 
+                WHERE user_id = ? 
+                ORDER BY year, month, day, time_from ASC`,
                 [userId]
             );
-            return rows;
+
+            // Formatear los datos para el frontend
+            return rows.map(event => ({
+                id: event.id,
+                title: event.title,
+                day: parseInt(event.day),
+                month: parseInt(event.month),
+                year: parseInt(event.year),
+                timeFrom: event.timeFrom,
+                timeTo: event.timeTo
+            }));
         } catch (error) {
             console.error('Error en getByUserId:', error);
             throw error;
@@ -31,9 +53,9 @@ const CalendarEvent = {
                 id: result.insertId,
                 user_id: userId,
                 title,
-                day,
-                month,
-                year,
+                day: parseInt(day),
+                month: parseInt(month),
+                year: parseInt(year),
                 timeFrom,
                 timeTo
             };

@@ -1,0 +1,142 @@
+.event-form-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.event-form {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+  position: relative;
+
+  .event-form-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+
+    h3 {
+      margin: 0;
+      color: #333;
+    }
+
+    .close-btn {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: #666;
+
+      &:hover {
+        color: #333;
+      }
+    }
+  }
+
+  .form-group {
+    margin-bottom: 15px;
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      color: #666;
+    }
+
+    .input-container {
+      position: relative;
+      width: 100%;
+    }
+
+    input {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 16px;
+
+      &:focus {
+        outline: none;
+        border-color: #e25822;
+      }
+    }
+  }
+
+  .suggestions-list {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+
+  .suggestion-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    
+    &:hover {
+      background-color: #f5f5f5;
+    }
+  }
+
+  .form-row {
+    display: flex;
+    gap: 15px;
+
+    .form-group {
+      flex: 1;
+    }
+  }
+
+  .submit-btn {
+    width: 100%;
+    padding: 10px;
+    background-color: #e25822;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+
+    &:hover {
+      background-color: #d44812;
+    }
+  }
+}
+
+.schedule-button {
+  display: block;
+  margin: 20px auto;
+  padding: 12px 24px;
+  background-color: #e25822;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s;
+
+  &:hover {
+    background-color: #d44812;
+  }
+}
+
+input[readonly] {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
+} 
