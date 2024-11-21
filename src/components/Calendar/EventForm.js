@@ -24,6 +24,7 @@ const EventForm = ({ selectedDate, currentDate, recipeName, onSubmit, onClose })
         };
     });
 
+    const [suggestions, setSuggestions] = useState([]);
     const [showSuggestions, setShowSuggestions] = useState(false);
     const [alert, setAlert] = useState({ show: false, message: '', type: '' });
 
@@ -69,19 +70,25 @@ const EventForm = ({ selectedDate, currentDate, recipeName, onSubmit, onClose })
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        
-        // Formatear el tiempo si es un campo de tiempo
-        const formattedValue = (name === 'timeFrom' || name === 'timeTo') 
-            ? formatTime(value)
-            : value;
-
         setFormData(prev => ({
             ...prev,
-            [name]: formattedValue
+            [name]: value
         }));
 
+        // Mostrar sugerencias solo para el campo título y cuando no es una receta predefinida
         if (name === 'title' && !recipeName) {
-            setShowSuggestions(value.length > 0);
+            if (value.trim()) { // Mostrar sugerencias si hay texto
+                const searchTerm = value.toLowerCase();
+                const filteredSuggestions = categoryMeals.filter(meal => 
+                    meal.nombre_receta.toLowerCase().includes(searchTerm)
+                );
+                console.log('Sugerencias encontradas:', filteredSuggestions); // Para debugging
+                setSuggestions(filteredSuggestions);
+                setShowSuggestions(true);
+            } else {
+                setSuggestions([]);
+                setShowSuggestions(false);
+            }
         }
     };
 
@@ -121,20 +128,12 @@ const EventForm = ({ selectedDate, currentDate, recipeName, onSubmit, onClose })
         }
     };
 
-    const getSuggestions = (input) => {
-        if (!input) return [];
-        return categoryMeals
-            .filter(meal => 
-                meal.nombre_receta.toLowerCase().includes(input.toLowerCase())
-            )
-            .slice(0, 5);
-    };
-
-    const handleSelectSuggestion = (recipeName) => {
+    const handleSelectSuggestion = (selectedRecipe) => {
         setFormData(prev => ({
             ...prev,
-            title: recipeName
+            title: selectedRecipe.nombre_receta
         }));
+        setSuggestions([]);
         setShowSuggestions(false);
     };
 
@@ -161,16 +160,17 @@ const EventForm = ({ selectedDate, currentDate, recipeName, onSubmit, onClose })
                                 placeholder="Ingresa el nombre de la receta"
                                 required
                                 readOnly={!!recipeName}
+                                autoComplete="off"
                             />
-                            {!recipeName && showSuggestions && (
+                            {!recipeName && showSuggestions && suggestions.length > 0 && (
                                 <div className="suggestions-list">
-                                    {getSuggestions(formData.title).map((meal, idx) => (
+                                    {suggestions.map((recipe, idx) => (
                                         <div 
-                                            key={idx}
+                                            key={recipe.id_receta || idx}
                                             className="suggestion-item"
-                                            onClick={() => handleSelectSuggestion(meal.nombre_receta)}
+                                            onClick={() => handleSelectSuggestion(recipe)}
                                         >
-                                            {meal.nombre_receta}
+                                            {recipe.nombre_receta}
                                         </div>
                                     ))}
                                 </div>
