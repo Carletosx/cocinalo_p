@@ -12,8 +12,8 @@ const CalendarEvent = {
                     ce.day,
                     ce.month,
                     ce.year,
-                    ce.time_from as timeFrom,
-                    ce.time_to as timeTo,
+                    DATE_FORMAT(ce.time_from, '%H:%i') as timeFrom,
+                    DATE_FORMAT(ce.time_to, '%H:%i') as timeTo,
                     ce.recipe_id as recipeId,
                     ce.created_at as createdAt
                 FROM calendar_events ce
@@ -22,16 +22,7 @@ const CalendarEvent = {
                 [userId]
             );
 
-            return rows.map(event => ({
-                id: event.id,
-                title: event.title,
-                day: parseInt(event.day),
-                month: parseInt(event.month),
-                year: parseInt(event.year),
-                timeFrom: event.timeFrom,
-                timeTo: event.timeTo,
-                recipeId: event.recipeId
-            }));
+            return rows;
         } catch (error) {
             console.error('Error en getByUserId:', error);
             throw error;
@@ -42,26 +33,30 @@ const CalendarEvent = {
         try {
             const { title, day, month, year, timeFrom, timeTo, recipeId } = eventData;
 
-            // Formatear las horas para asegurar formato HH:mm
-            const formatTime = (time) => {
-                return time.split(':').slice(0, 2).join(':');
+            if (!title || !day || !month || !year || !timeFrom || !timeTo) {
+                throw new Error('Faltan campos requeridos');
+            }
+
+            const validatedData = {
+                day: parseInt(day),
+                month: parseInt(month),
+                year: parseInt(year)
             };
 
-            const formattedTimeFrom = formatTime(timeFrom);
-            const formattedTimeTo = formatTime(timeTo);
+            const formatTime = (time) => time.split(':').slice(0, 2).join(':');
 
             const [result] = await db.execute(
                 `INSERT INTO calendar_events 
                 (user_id, title, day, month, year, time_from, time_to, recipe_id) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+                VALUES (?, ?, ?, ?, ?, STR_TO_DATE(?, '%H:%i'), STR_TO_DATE(?, '%H:%i'), ?)`,
                 [
                     userId, 
                     title, 
-                    parseInt(day), 
-                    parseInt(month), 
-                    parseInt(year), 
-                    formattedTimeFrom,
-                    formattedTimeTo, 
+                    validatedData.day, 
+                    validatedData.month, 
+                    validatedData.year, 
+                    formatTime(timeFrom), 
+                    formatTime(timeTo), 
                     recipeId || null
                 ]
             );
@@ -70,12 +65,10 @@ const CalendarEvent = {
                 id: result.insertId,
                 userId,
                 title,
-                day: parseInt(day),
-                month: parseInt(month),
-                year: parseInt(year),
-                timeFrom: formattedTimeFrom,
-                timeTo: formattedTimeTo,
-                recipeId: recipeId || null
+                ...validatedData,
+                timeFrom: formatTime(timeFrom),
+                timeTo: formatTime(timeTo),
+                recipeId
             };
         } catch (error) {
             console.error('Error en create:', error);

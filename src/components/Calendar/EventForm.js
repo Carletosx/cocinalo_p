@@ -11,11 +11,16 @@ const EventForm = ({ selectedDate, currentDate, recipeName, onSubmit, onClose })
             new Date(currentDate.getFullYear(), currentDate.getMonth(), selectedDate)
         );
         
+        const now = new Date();
+        const defaultTimeFrom = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+        const laterHour = new Date(now.getTime() + 60 * 60 * 1000);
+        const defaultTimeTo = `${String(laterHour.getHours()).padStart(2, '0')}:${String(laterHour.getMinutes()).padStart(2, '0')}`;
+        
         return {
             title: recipeName || '',
             date: initialDate,
-            timeFrom: '',
-            timeTo: ''
+            timeFrom: defaultTimeFrom,
+            timeTo: defaultTimeTo
         };
     });
 
@@ -31,9 +36,12 @@ const EventForm = ({ selectedDate, currentDate, recipeName, onSubmit, onClose })
                 return new Date().toISOString().split('T')[0];
             }
 
-            let month = (d.getMonth() + 1).toString();
-            let day = d.getDate().toString();
-            const year = d.getFullYear();
+            const tzOffset = d.getTimezoneOffset() * 60000; // offset en milisegundos
+            const localDate = new Date(d.getTime() + tzOffset);
+
+            let month = (localDate.getMonth() + 1).toString();
+            let day = localDate.getDate().toString();
+            const year = localDate.getFullYear();
 
             month = month.padStart(2, '0');
             day = day.padStart(2, '0');
@@ -53,11 +61,23 @@ const EventForm = ({ selectedDate, currentDate, recipeName, onSubmit, onClose })
         }));
     };
 
+    const formatTime = (time) => {
+        if (!time) return '';
+        // Asegurarse de que el tiempo esté en formato HH:mm
+        return time.split(':').slice(0, 2).join(':');
+    };
+
     const handleChange = (e) => {
         const { name, value } = e.target;
+        
+        // Formatear el tiempo si es un campo de tiempo
+        const formattedValue = (name === 'timeFrom' || name === 'timeTo') 
+            ? formatTime(value)
+            : value;
+
         setFormData(prev => ({
             ...prev,
-            [name]: value
+            [name]: formattedValue
         }));
 
         if (name === 'title' && !recipeName) {
@@ -68,7 +88,7 @@ const EventForm = ({ selectedDate, currentDate, recipeName, onSubmit, onClose })
     const handleSubmit = (e) => {
         e.preventDefault();
         
-        if (!formData.date || !formData.timeFrom || !formData.timeTo) {
+        if (!formData.timeFrom || !formData.timeTo) {
             setAlert({
                 show: true,
                 message: 'Por favor completa todos los campos',
@@ -80,27 +100,19 @@ const EventForm = ({ selectedDate, currentDate, recipeName, onSubmit, onClose })
         try {
             const selectedDate = new Date(formData.date + 'T00:00:00');
             
-            const timeFrom = formData.timeFrom.split(':').slice(0, 2).join(':');
-            const timeTo = formData.timeTo.split(':').slice(0, 2).join(':');
-
             const finalData = {
-                title: formData.title,
+                title: formData.title.trim(),
                 day: selectedDate.getDate(),
                 month: selectedDate.getMonth() + 1,
                 year: selectedDate.getFullYear(),
-                timeFrom: timeFrom,
-                timeTo: timeTo
+                timeFrom: formatTime(formData.timeFrom),
+                timeTo: formatTime(formData.timeTo)
             };
 
-            console.log('Datos a enviar:', {
-                fecha_original: formData.date,
-                fecha_procesada: selectedDate,
-                datos_finales: finalData
-            });
-
+            console.log('Datos a enviar:', finalData);
             onSubmit(finalData);
         } catch (error) {
-            console.error('Error al procesar el formulario:', error);
+            console.error('Error en el formulario:', error);
             setAlert({
                 show: true,
                 message: 'Error al procesar los datos del formulario',
@@ -188,6 +200,7 @@ const EventForm = ({ selectedDate, currentDate, recipeName, onSubmit, onClose })
                                 value={formData.timeFrom}
                                 onChange={handleChange}
                                 required
+                                step="60" // Esto evita los segundos
                             />
                         </div>
 
@@ -200,6 +213,7 @@ const EventForm = ({ selectedDate, currentDate, recipeName, onSubmit, onClose })
                                 value={formData.timeTo}
                                 onChange={handleChange}
                                 required
+                                step="60" // Esto evita los segundos
                             />
                         </div>
                     </div>

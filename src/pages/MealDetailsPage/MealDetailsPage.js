@@ -30,13 +30,18 @@ const MealDetailsPage = () => {
                 throw new Error('Todos los campos son requeridos');
             }
 
+            const formatTime = (time) => {
+                if (!time) return null;
+                return time.split(':').slice(0, 2).join(':');
+            };
+
             const eventData = {
                 title: meal.nombre_receta,
                 day: formData.day,
                 month: formData.month,
                 year: formData.year,
-                timeFrom: formData.timeFrom,
-                timeTo: formData.timeTo,
+                timeFrom: formatTime(formData.timeFrom),
+                timeTo: formatTime(formData.timeTo),
                 recipeId: parseInt(meal.id_receta) || null
             };
 

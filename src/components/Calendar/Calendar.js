@@ -42,19 +42,24 @@ const Calendar = () => {
 
     const handleRecipeAdd = async (recipeData) => {
         try {
-            console.log('Enviando datos:', recipeData);
-            const response = await axios.post('/calendar/events', recipeData);
-            console.log('Respuesta:', response.data);
+            const formattedData = {
+                ...recipeData,
+                timeFrom: recipeData.timeFrom,
+                timeTo: recipeData.timeTo
+            };
+
+            console.log('Enviando datos:', formattedData);
+            const response = await axios.post('/calendar/events', formattedData);
             
             if (response.data && response.data.data) {
                 const newRecipe = {
                     id: response.data.data.id,
-                    title: recipeData.title,
-                    day: parseInt(recipeData.day),
-                    month: parseInt(recipeData.month),
-                    year: parseInt(recipeData.year),
-                    timeFrom: recipeData.timeFrom,
-                    timeTo: recipeData.timeTo
+                    title: formattedData.title,
+                    day: parseInt(formattedData.day),
+                    month: parseInt(formattedData.month),
+                    year: parseInt(formattedData.year),
+                    timeFrom: formattedData.timeFrom,
+                    timeTo: formattedData.timeTo
                 };
 
                 setRecipes(prevRecipes => [...prevRecipes, newRecipe]);
@@ -62,7 +67,7 @@ const Calendar = () => {
                 
                 setAlert({
                     show: true,
-                    message: `¡Receta "${recipeData.title}" agregada exitosamente!`,
+                    message: `¡Receta "${formattedData.title}" agregada exitosamente!`,
                     type: 'success'
                 });
             }

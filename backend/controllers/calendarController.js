@@ -1,5 +1,10 @@
 const CalendarEvent = require('../models/CalendarEvent');
 
+const formatTime = (time) => {
+    if (!time) return null;
+    return time.split(':').slice(0, 2).join(':');
+};
+
 const calendarController = {
     getRecipes: async (req, res) => {
         try {
@@ -26,7 +31,11 @@ const calendarController = {
     createEvent: async (req, res) => {
         try {
             const userId = req.user.id;
-            const eventData = req.body;
+            const eventData = {
+                ...req.body,
+                timeFrom: formatTime(req.body.timeFrom),
+                timeTo: formatTime(req.body.timeTo)
+            };
             
             console.log('Datos recibidos en createEvent:', {
                 userId,

@@ -2,6 +2,11 @@ import React from 'react';
 import { IoMdClose } from 'react-icons/io';
 
 const CalendarGrid = ({ currentDate, events, onDateClick, onEventDelete }) => {
+    const formatTimeDisplay = (time) => {
+        if (!time) return '';
+        return time.split(':').slice(0, 2).join(':');  // Solo toma HH:mm
+    };
+
     const getEventsForDate = (date) => {
         const dateEvents = events.filter(event => 
             event.day === date &&
@@ -93,7 +98,7 @@ const CalendarGrid = ({ currentDate, events, onDateClick, onEventDelete }) => {
                                             </button>
                                         </div>
                                         <span className="event-time">
-                                            🕒 {event.timeFrom || '00:00'} - {event.timeTo || '00:00'}
+                                            🕒 {formatTimeDisplay(event.timeFrom)} - {formatTimeDisplay(event.timeTo)}
                                         </span>
                                     </div>
                                 ))}
