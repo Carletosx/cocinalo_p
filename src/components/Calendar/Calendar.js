@@ -18,6 +18,8 @@ const Calendar = () => {
         recipeId: null,
         recipeName: ''
     });
+    const [selectedEvent, setSelectedEvent] = useState(null);
+    const [isEditing, setIsEditing] = useState(false);
 
     useEffect(() => {
         const fetchRecipes = async () => {
@@ -121,6 +123,87 @@ const Calendar = () => {
         setShowRecipeForm(true);
     };
 
+    const handleEventView = async (event) => {
+        try {
+            console.log('Intentando ver evento:', event);
+            const response = await axios.get(`/calendar/events/${event.id}`);
+            console.log('Respuesta del servidor:', response);
+            
+            if (response.data.success) {
+                setSelectedEvent(response.data.data);
+                setShowRecipeForm(true);
+                setIsEditing(false);
+            }
+        } catch (error) {
+            console.error('Error detallado:', {
+                config: error.config,
+                response: error.response,
+                message: error.message
+            });
+            
+            setAlert({
+                show: true,
+                message: 'Error al cargar los detalles del evento: ' + 
+                        (error.response?.data?.message || error.message),
+                type: 'error'
+            });
+        }
+    };
+
+    const handleEventEdit = async (event) => {
+        try {
+            console.log('Intentando editar evento:', event);
+            const response = await axios.get(`/calendar/events/${event.id}`);
+            console.log('Respuesta del servidor:', response);
+            
+            if (response.data.success) {
+                setSelectedEvent(response.data.data);
+                setShowRecipeForm(true);
+                setIsEditing(true);
+            }
+        } catch (error) {
+            console.error('Error detallado:', {
+                config: error.config,
+                response: error.response,
+                message: error.message
+            });
+            
+            setAlert({
+                show: true,
+                message: 'Error al cargar el evento para editar: ' + 
+                        (error.response?.data?.message || error.message),
+                type: 'error'
+            });
+        }
+    };
+
+    const handleEventUpdate = async (eventData) => {
+        try {
+            const response = await axios.put(`/calendar/events/${selectedEvent.id}`, eventData);
+            if (response.data.success) {
+                setRecipes(prevRecipes => 
+                    prevRecipes.map(recipe => 
+                        recipe.id === selectedEvent.id ? response.data.data : recipe
+                    )
+                );
+                setShowRecipeForm(false);
+                setSelectedEvent(null);
+                setIsEditing(false);
+                setAlert({
+                    show: true,
+                    message: 'Evento actualizado exitosamente',
+                    type: 'success'
+                });
+            }
+        } catch (error) {
+            setAlert({
+                show: true,
+                message: 'Error al actualizar el evento',
+                type: 'error'
+            });
+        }
+    };
+
     return (
         <div className="calendar">
             <CalendarHeader 
@@ -143,6 +226,8 @@ const Calendar = () => {
                     events={recipes}
                     onDateClick={handleDateClick}
                     onEventDelete={handleRecipeDelete}
+                    onEventView={handleEventView}
+                    onEventEdit={handleEventEdit}
                 />
             </div>
 
@@ -150,8 +235,14 @@ const Calendar = () => {
                 <EventForm 
                     selectedDate={selectedDate}
                     currentDate={currentDate}
-                    onSubmit={handleRecipeAdd}
-                    onClose={() => setShowRecipeForm(false)}
+                    onSubmit={isEditing ? handleEventUpdate : handleRecipeAdd}
+                    onClose={() => {
+                        setShowRecipeForm(false);
+                        setSelectedEvent(null);
+                        setIsEditing(false);
+                    }}
+                    initialData={selectedEvent}
+                    isEditing={isEditing}
                 />
             )}
 

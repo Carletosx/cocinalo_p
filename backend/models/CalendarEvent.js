@@ -88,6 +88,85 @@ const CalendarEvent = {
             console.error('Error en delete:', error);
             throw error;
         }
+    },
+
+    getById: async (eventId, userId) => {
+        try {
+            console.log('Buscando evento:', { eventId, userId });
+
+            const [rows] = await db.execute(`
+                SELECT 
+                    id,
+                    user_id as userId,
+                    title,
+                    day,
+                    month,
+                    year,
+                    TIME_FORMAT(time_from, '%H:%i') as timeFrom,
+                    TIME_FORMAT(time_to, '%H:%i') as timeTo,
+                    recipe_id as recipeId,
+                    created_at as createdAt
+                FROM calendar_events 
+                WHERE id = ? AND user_id = ?
+                LIMIT 1`,
+                [parseInt(eventId), parseInt(userId)]
+            );
+
+            console.log('Resultado de la consulta:', rows);
+            return rows.length > 0 ? rows[0] : null;
+        } catch (error) {
+            console.error('Error en getById:', error);
+            throw error;
+        }
+    },
+
+    update: async (eventId, userId, eventData) => {
+        try {
+            const { title, day, month, year, timeFrom, timeTo, recipeId } = eventData;
+            
+            const [result] = await db.execute(`
+                UPDATE calendar_events 
+                SET 
+                    title = ?,
+                    day = ?,
+                    month = ?,
+                    year = ?,
+                    time_from = TIME_FORMAT(?, '%H:%i'),
+                    time_to = TIME_FORMAT(?, '%H:%i'),
+                    recipe_id = ?
+                WHERE id = ? AND user_id = ?`,
+                [
+                    title,
+                    parseInt(day),
+                    parseInt(month),
+                    parseInt(year),
+                    timeFrom,
+                    timeTo,
+                    recipeId || null,
+                    parseInt(eventId),
+                    parseInt(userId)
+                ]
+            );
+
+            if (result.affectedRows === 0) {
+                return null;
+            }
+
+            return {
+                id: parseInt(eventId),
+                userId: parseInt(userId),
+                title,
+                day: parseInt(day),
+                month: parseInt(month),
+                year: parseInt(year),
+                timeFrom,
+                timeTo,
+                recipeId: recipeId || null
+            };
+        } catch (error) {
+            console.error('Error en update:', error);
+            throw error;
+        }
     }
 };
 

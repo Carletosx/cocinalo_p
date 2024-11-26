@@ -4,9 +4,29 @@ import Alert from '../Alert/Alert';
 import { useMealContext } from '../../context/mealContext';
 import './EventForm.scss';
 
-const EventForm = ({ selectedDate, currentDate, recipeName, onSubmit, onClose }) => {
+const EventForm = ({ 
+    selectedDate, 
+    currentDate, 
+    recipeName, 
+    onSubmit, 
+    onClose,
+    initialData,
+    isEditing,
+    isViewOnly 
+}) => {
     const { categoryMeals } = useMealContext();
     const [formData, setFormData] = useState(() => {
+        if (initialData) {
+            return {
+                title: initialData.title,
+                date: formatDateForInput(
+                    new Date(initialData.year, initialData.month - 1, initialData.day)
+                ),
+                timeFrom: initialData.timeFrom,
+                timeTo: initialData.timeTo
+            };
+        }
+
         const initialDate = formatDateForInput(
             new Date(currentDate.getFullYear(), currentDate.getMonth(), selectedDate)
         );
@@ -137,11 +157,17 @@ const EventForm = ({ selectedDate, currentDate, recipeName, onSubmit, onClose })
         setShowSuggestions(false);
     };
 
+    const getFormTitle = () => {
+        if (isViewOnly) return 'Detalles de la Receta';
+        if (isEditing) return 'Editar Receta';
+        return recipeName ? `Agendar: ${recipeName}` : 'Agregar Receta';
+    };
+
     return (
         <div className="event-form-overlay">
             <div className="event-form">
                 <div className="event-form-header">
-                    <h3>{recipeName ? `Agendar: ${recipeName}` : 'Agregar Receta'}</h3>
+                    <h3>{getFormTitle()}</h3>
                     <button className="close-btn" onClick={onClose}>
                         <IoMdClose />
                     </button>
@@ -159,10 +185,10 @@ const EventForm = ({ selectedDate, currentDate, recipeName, onSubmit, onClose })
                                 onChange={handleChange}
                                 placeholder="Ingresa el nombre de la receta"
                                 required
-                                readOnly={!!recipeName}
+                                readOnly={isViewOnly || !!recipeName}
                                 autoComplete="off"
                             />
-                            {!recipeName && showSuggestions && suggestions.length > 0 && (
+                            {!isViewOnly && !recipeName && showSuggestions && suggestions.length > 0 && (
                                 <div className="suggestions-list">
                                     {suggestions.map((recipe, idx) => (
                                         <div 
@@ -187,6 +213,7 @@ const EventForm = ({ selectedDate, currentDate, recipeName, onSubmit, onClose })
                             value={formData.date}
                             onChange={handleDateChange}
                             required
+                            readOnly={isViewOnly}
                         />
                     </div>
 
@@ -200,7 +227,8 @@ const EventForm = ({ selectedDate, currentDate, recipeName, onSubmit, onClose })
                                 value={formData.timeFrom}
                                 onChange={handleChange}
                                 required
-                                step="60" // Esto evita los segundos
+                                readOnly={isViewOnly}
+                                step="60"
                             />
                         </div>
 
@@ -213,14 +241,17 @@ const EventForm = ({ selectedDate, currentDate, recipeName, onSubmit, onClose })
                                 value={formData.timeTo}
                                 onChange={handleChange}
                                 required
-                                step="60" // Esto evita los segundos
+                                readOnly={isViewOnly}
+                                step="60"
                             />
                         </div>
                     </div>
 
-                    <button type="submit" className="submit-btn">
-                        Guardar Receta
-                    </button>
+                    {!isViewOnly && (
+                        <button type="submit" className="submit-btn">
+                            {isEditing ? 'Actualizar Receta' : 'Guardar Receta'}
+                        </button>
+                    )}
                 </form>
 
                 {alert.show && (

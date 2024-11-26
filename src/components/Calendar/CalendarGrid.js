@@ -1,7 +1,7 @@
 import React from 'react';
-import { IoMdClose } from 'react-icons/io';
+import { IoMdClose, IoMdEye, IoMdCreate } from 'react-icons/io';
 
-const CalendarGrid = ({ currentDate, events, onDateClick, onEventDelete }) => {
+const CalendarGrid = ({ currentDate, events, onDateClick, onEventDelete, onEventView, onEventEdit }) => {
     const formatTimeDisplay = (time) => {
         if (!time) return '';
         return time.split(':').slice(0, 2).join(':');  // Solo toma HH:mm
@@ -86,16 +86,38 @@ const CalendarGrid = ({ currentDate, events, onDateClick, onEventDelete }) => {
                                             <span className="event-title">
                                                 {event.title || 'Sin título'}
                                             </span>
-                                            <button 
-                                                className="delete-event"
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    onEventDelete(event.id);
-                                                }}
-                                                title="Eliminar receta"
-                                            >
-                                                <IoMdClose />
-                                            </button>
+                                            <div className="event-actions">
+                                                <button 
+                                                    className="event-button view-btn"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        onEventView(event);
+                                                    }}
+                                                    title="Ver detalles"
+                                                >
+                                                    <IoMdEye />
+                                                </button>
+                                                <button 
+                                                    className="event-button edit-btn"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        onEventEdit(event);
+                                                    }}
+                                                    title="Editar receta"
+                                                >
+                                                    <IoMdCreate />
+                                                </button>
+                                                <button 
+                                                    className="event-button delete-btn"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        onEventDelete(event.id);
+                                                    }}
+                                                    title="Eliminar receta"
+                                                >
+                                                    <IoMdClose />
+                                                </button>
+                                            </div>
                                         </div>
                                         <span className="event-time">
                                             🕒 {formatTimeDisplay(event.timeFrom)} - {formatTimeDisplay(event.timeTo)}

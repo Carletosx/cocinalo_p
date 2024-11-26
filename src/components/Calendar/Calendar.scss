@@ -154,8 +154,48 @@
                 align-items: center;
             }
 
+            .event-actions {
+                display: flex;
+                gap: 4px;
+                align-items: center;
+            }
+
+            .event-button {
+                background: none;
+                border: none;
+                cursor: pointer;
+                padding: 2px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 50%;
+                transition: all 0.2s ease;
+                font-size: 14px;
+
+                &.view-btn {
+                    color: #4a90e2;
+                    &:hover {
+                        background-color: rgba(74, 144, 226, 0.1);
+                    }
+                }
+
+                &.edit-btn {
+                    color: #28a745;
+                    &:hover {
+                        background-color: rgba(40, 167, 69, 0.1);
+                    }
+                }
+
+                &.delete-btn {
+                    color: #dc3545;
+                    &:hover {
+                        background-color: rgba(220, 53, 69, 0.1);
+                    }
+                }
+            }
+
             .event-title {
-                color: #ff6b6b;
+                color: $clr-orange;
                 font-weight: 500;
                 overflow: hidden;
                 text-overflow: ellipsis;
@@ -165,24 +205,6 @@
             .event-time {
                 font-size: 10px;
                 color: #666;
-            }
-
-            .delete-event {
-                background: none;
-                border: none;
-                color: #666;
-                cursor: pointer;
-                padding: 2px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                border-radius: 50%;
-                transition: all 0.2s ease;
-
-                &:hover {
-                    color: #ff4444;
-                    background-color: rgba(255, 68, 68, 0.1);
-                }
             }
         }
     }
@@ -196,39 +218,66 @@
     border-radius: 4px;
     font-size: 12px;
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    transition: all 0.3s ease;
+    flex-direction: column;
+    gap: 2px;
 
-    &:hover {
-        background-color: rgba($clr-orange, 0.15);
+    .event-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
     }
 
-    .event-title {
-        flex: 1;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        color: darken($clr-orange, 20%);
+    .event-actions {
+        display: flex;
+        gap: 4px;
+        align-items: center;
     }
 
-    .delete-event {
+    .event-button {
         background: none;
         border: none;
-        color: rgba($clr-dark, 0.5);
         cursor: pointer;
         padding: 2px;
-        margin-left: 4px;
-        border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        transition: all 0.3s ease;
+        border-radius: 50%;
+        transition: all 0.2s ease;
+        font-size: 14px;
 
-        &:hover {
-            color: red;
-            background-color: rgba(red, 0.1);
+        &.view-btn {
+            color: #4a90e2;
+            &:hover {
+                background-color: rgba(74, 144, 226, 0.1);
+            }
         }
+
+        &.edit-btn {
+            color: #28a745;
+            &:hover {
+                background-color: rgba(40, 167, 69, 0.1);
+            }
+        }
+
+        &.delete-btn {
+            color: #dc3545;
+            &:hover {
+                background-color: rgba(220, 53, 69, 0.1);
+            }
+        }
+    }
+
+    .event-title {
+        color: $clr-orange;
+        font-weight: 500;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .event-time {
+        font-size: 10px;
+        color: #666;
     }
 }
 

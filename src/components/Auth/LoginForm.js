@@ -23,11 +23,16 @@ const LoginForm = () => {
         e.preventDefault();
         setError('');
 
-        const result = await login(formData.correo, formData.password);
-        if (result.success) {
-            navigate('/');
-        } else {
-            setError(result.message);
+        try {
+            const result = await login(formData.correo, formData.password);
+            if (result.success) {
+                navigate('/');
+            } else {
+                setError(result.message || 'Error al iniciar sesión');
+            }
+        } catch (error) {
+            console.error('Error en el proceso de login:', error);
+            setError('Error al procesar el inicio de sesión');
         }
     };
 
@@ -65,6 +70,15 @@ const LoginForm = () => {
                     <button type="submit" className="auth-button">
                         Iniciar Sesión
                     </button>
+
+                    <div className="auth-links">
+                        <p>
+                            ¿No tienes una cuenta?{' '}
+                            <span onClick={() => navigate('/register')} className="link">
+                                Regístrate aquí
+                            </span>
+                        </p>
+                    </div>
                 </form>
             </div>
         </div>

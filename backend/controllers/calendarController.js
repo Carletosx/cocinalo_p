@@ -114,6 +114,71 @@ const calendarController = {
                 error: error.message
             });
         }
+    },
+
+    getEventById: async (req, res) => {
+        try {
+            const userId = req.user.id;
+            const eventId = parseInt(req.params.eventId);
+            
+            console.log('Buscando evento:', { userId, eventId });
+            
+            const event = await CalendarEvent.getById(eventId, userId);
+            
+            if (!event) {
+                console.log('Evento no encontrado');
+                return res.status(404).json({
+                    success: false,
+                    message: 'Evento no encontrado'
+                });
+            }
+            
+            console.log('Evento encontrado:', event);
+            res.json({
+                success: true,
+                data: event
+            });
+        } catch (error) {
+            console.error('Error en getEventById:', error);
+            res.status(500).json({
+                success: false,
+                message: 'Error al obtener el evento',
+                error: error.message
+            });
+        }
+    },
+
+    updateEvent: async (req, res) => {
+        try {
+            const userId = req.user.id;
+            const { eventId } = req.params;
+            const eventData = {
+                ...req.body,
+                timeFrom: formatTime(req.body.timeFrom),
+                timeTo: formatTime(req.body.timeTo)
+            };
+            
+            const updatedEvent = await CalendarEvent.update(eventId, userId, eventData);
+            
+            if (!updatedEvent) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Evento no encontrado o no tienes permiso para editarlo'
+                });
+            }
+            
+            res.json({
+                success: true,
+                data: updatedEvent,
+                message: 'Evento actualizado exitosamente'
+            });
+        } catch (error) {
+            res.status(500).json({
+                success: false,
+                message: 'Error al actualizar el evento',
+                error: error.message
+            });
+        }
     }
 };
 
