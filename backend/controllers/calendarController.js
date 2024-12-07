@@ -133,10 +133,16 @@ const calendarController = {
                 });
             }
             
-            console.log('Evento encontrado:', event);
+            // Agregar campos adicionales si es necesario
+            const enrichedEvent = {
+                ...event,
+                isCompleted: false, // Podrías agregar esto a la base de datos más adelante
+            };
+            
+            console.log('Evento encontrado:', enrichedEvent);
             res.json({
                 success: true,
-                data: event
+                data: enrichedEvent
             });
         } catch (error) {
             console.error('Error en getEventById:', error);
@@ -176,6 +182,49 @@ const calendarController = {
             res.status(500).json({
                 success: false,
                 message: 'Error al actualizar el evento',
+                error: error.message
+            });
+        }
+    },
+
+    markEventAsCompleted: async (req, res) => {
+        try {
+            const userId = req.user.id;
+            const { eventId } = req.params;
+
+            await CalendarEvent.markAsCompleted(eventId, userId);
+
+            res.json({
+                success: true,
+                message: 'Evento marcado como completado exitosamente'
+            });
+        } catch (error) {
+            console.error('Error al marcar evento como completado:', error);
+            res.status(500).json({
+                success: false,
+                message: 'Error al marcar el evento como completado',
+                error: error.message
+            });
+        }
+    },
+
+    updateIngredientChecklist: async (req, res) => {
+        try {
+            const userId = req.user.id;
+            const { eventId } = req.params;
+            const { ingredients } = req.body;
+
+            await CalendarEvent.updateIngredientChecklist(eventId, userId, ingredients);
+
+            res.json({
+                success: true,
+                message: 'Checklist actualizado exitosamente'
+            });
+        } catch (error) {
+            console.error('Error al actualizar checklist:', error);
+            res.status(500).json({
+                success: false,
+                message: 'Error al actualizar el checklist',
                 error: error.message
             });
         }

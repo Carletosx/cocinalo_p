@@ -5,6 +5,7 @@ import CalendarHeader from './CalendarHeader';
 import EventForm from './EventForm';
 import Alert from '../Alert/Alert';
 import ConfirmDialog from '../ConfirmDialog/ConfirmDialog';
+import EventDetailView from './EventDetailView';
 import './Calendar.scss';
 
 const Calendar = () => {
@@ -20,6 +21,8 @@ const Calendar = () => {
     });
     const [selectedEvent, setSelectedEvent] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
+    const [showDetailView, setShowDetailView] = useState(false);
+    const [selectedEventForDetail, setSelectedEventForDetail] = useState(null);
 
     useEffect(() => {
         const fetchRecipes = async () => {
@@ -130,9 +133,8 @@ const Calendar = () => {
             console.log('Respuesta del servidor:', response);
             
             if (response.data.success) {
-                setSelectedEvent(response.data.data);
-                setShowRecipeForm(true);
-                setIsEditing(false);
+                setSelectedEventForDetail(response.data.data);
+                setShowDetailView(true);
             }
         } catch (error) {
             console.error('Error detallado:', {
@@ -260,6 +262,16 @@ const Calendar = () => {
                 onConfirm={confirmDelete}
                 onCancel={() => setConfirmDialog({ isOpen: false, recipeId: null, recipeName: '' })}
             />
+
+            {showDetailView && selectedEventForDetail && (
+                <EventDetailView 
+                    event={selectedEventForDetail}
+                    onClose={() => {
+                        setShowDetailView(false);
+                        setSelectedEventForDetail(null);
+                    }}
+                />
+            )}
         </div>
     );
 };

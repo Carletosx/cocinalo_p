@@ -22,5 +22,7 @@ router.get('/events/:eventId', calendarController.getEventById);
 router.post('/events', calendarController.createEvent);
 router.put('/events/:eventId', calendarController.updateEvent);
 router.delete('/events/:recipeId', calendarController.deleteRecipe);
+router.post('/events/:eventId/complete', calendarController.markEventAsCompleted);
+router.post('/events/:eventId/checklist', calendarController.updateIngredientChecklist);
 
 module.exports = router; 

@@ -1,0 +1,53 @@
+.event-view {
+    padding: 20px;
+    
+    .event-view-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 14px;
+            
+            &.completed {
+                background-color: #4CAF50;
+                color: white;
+            }
+        }
+    }
+
+    .timer-section {
+        margin: 20px 0;
+        text-align: center;
+        
+        .timer-display {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .timer-controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+    }
+
+    .complete-btn {
+        width: 100%;
+        padding: 10px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-top: 20px;
+        
+        &:hover {
+            background-color: #45a049;
+        }
+    }
+}
