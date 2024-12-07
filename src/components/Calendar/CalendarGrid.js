@@ -1,5 +1,5 @@
 import React from 'react';
-import { IoMdClose, IoMdEye, IoMdCreate } from 'react-icons/io';
+import { IoMdClose, IoMdEye, IoMdCreate, IoIosCheckmarkCircle } from 'react-icons/io';
 
 const CalendarGrid = ({ currentDate, events, onDateClick, onEventDelete, onEventView, onEventEdit }) => {
     const formatTimeDisplay = (time) => {
@@ -81,10 +81,11 @@ const CalendarGrid = ({ currentDate, events, onDateClick, onEventDelete, onEvent
                             <span className="date-number">{day}</span>
                             <div className="events-container">
                                 {getEventsForDate(day).map(event => (
-                                    <div key={event.id} className="event-item">
+                                    <div key={event.id} className={`event-item ${Boolean(event.isCompleted) ? 'completed' : ''}`}>
                                         <div className="event-content">
                                             <span className="event-title">
-                                                {event.title || 'Sin título'}
+                                                {Boolean(event.isCompleted) && <IoIosCheckmarkCircle className="completed-icon" />}
+                                                {event.title}
                                             </span>
                                             <div className="event-actions">
                                                 <button 

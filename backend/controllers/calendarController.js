@@ -31,10 +31,14 @@ const calendarController = {
     createEvent: async (req, res) => {
         try {
             const userId = req.user.id;
+            const { title, ...otherData } = req.body;
+            const cleanTitle = title.replace(/^0+/, ''); //Eliminar ceros iniciales
+            
             const eventData = {
-                ...req.body,
-                timeFrom: formatTime(req.body.timeFrom),
-                timeTo: formatTime(req.body.timeTo)
+                title: cleanTitle,
+                ...otherData,
+                timeFrom: formatTime(otherData.timeFrom),
+                timeTo: formatTime(otherData.timeTo)
             };
             
             console.log('Datos recibidos en createEvent:', {
@@ -158,10 +162,14 @@ const calendarController = {
         try {
             const userId = req.user.id;
             const { eventId } = req.params;
+            const { title, ...otherData } = req.body;
+            const cleanTitle = title.replace(/^0+/, ''); //Eliminar ceros iniciales
+            
             const eventData = {
-                ...req.body,
-                timeFrom: formatTime(req.body.timeFrom),
-                timeTo: formatTime(req.body.timeTo)
+                title: cleanTitle,
+                ...otherData,
+                timeFrom: formatTime(otherData.timeFrom),
+                timeTo: formatTime(otherData.timeTo)
             };
             
             const updatedEvent = await CalendarEvent.update(eventId, userId, eventData);
@@ -226,6 +234,27 @@ const calendarController = {
                 success: false,
                 message: 'Error al actualizar el checklist',
                 error: error.message
+            });
+        }
+    },
+
+    deleteEvent: async (req, res) => {
+        const { eventId } = req.params;
+        const userId = req.user.id;
+
+        try {
+            console.log('Eliminando evento:', { eventId, userId });
+            await CalendarEvent.delete(eventId, userId);
+            
+            res.json({
+                success: true,
+                message: 'Evento eliminado exitosamente'
+            });
+        } catch (error) {
+            console.error('Error al eliminar receta:', error);
+            res.status(500).json({
+                success: false,
+                message: 'Error al eliminar el evento'
             });
         }
     }

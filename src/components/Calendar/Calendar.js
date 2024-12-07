@@ -206,6 +206,53 @@ const Calendar = () => {
         }
     };
 
+    const handleEventComplete = async (eventId) => {
+        try {
+            const response = await axios.post(`/calendar/events/${eventId}/complete`);
+            
+            if (response.data.success) {
+                setRecipes(prevRecipes => 
+                    prevRecipes.map(recipe => 
+                        recipe.id === eventId 
+                            ? { ...recipe, isCompleted: true }
+                            : recipe
+                    )
+                );
+            }
+        } catch (error) {
+            console.error('Error al completar el evento:', error);
+            setAlert({
+                show: true,
+                message: 'Error al completar la receta',
+                type: 'error'
+            });
+        }
+    };
+
+    const handleEventDelete = async (eventId) => {
+        try {
+            const response = await axios.delete(`/calendar/events/${eventId}`);
+            
+            if (response.data.success) {
+                setRecipes(prevRecipes => 
+                    prevRecipes.filter(recipe => recipe.id !== eventId)
+                );
+                setAlert({
+                    show: true,
+                    message: 'Receta eliminada exitosamente',
+                    type: 'success'
+                });
+            }
+        } catch (error) {
+            console.error('Error al eliminar el evento:', error);
+            setAlert({
+                show: true,
+                message: 'Error al eliminar la receta',
+                type: 'error'
+            });
+        }
+    };
+
     return (
         <div className="calendar">
             <CalendarHeader 
@@ -270,6 +317,8 @@ const Calendar = () => {
                         setShowDetailView(false);
                         setSelectedEventForDetail(null);
                     }}
+                    onComplete={handleEventComplete}
+                    onDelete={handleEventDelete}
                 />
             )}
         </div>

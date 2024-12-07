@@ -12,16 +12,16 @@ const CalendarEvent = {
                     ce.day,
                     ce.month,
                     ce.year,
-                    DATE_FORMAT(ce.time_from, '%H:%i') as timeFrom,
-                    DATE_FORMAT(ce.time_to, '%H:%i') as timeTo,
-                    ce.recipe_id as recipeId,
-                    ce.created_at as createdAt
+                    ce.time_from,
+                    ce.time_to,
+                    ce.recipe_id,
+                    ce.created_at,
+                    IF(COALESCE(es.is_completed, 0) = 1, true, false) as isCompleted
                 FROM calendar_events ce
-                WHERE ce.user_id = ? 
-                ORDER BY ce.year, ce.month, ce.day, ce.time_from ASC`,
+                LEFT JOIN event_status es ON ce.id = es.event_id
+                WHERE ce.user_id = ?`,
                 [userId]
             );
-
             return rows;
         } catch (error) {
             console.error('Error en getByUserId:', error);
@@ -77,16 +77,37 @@ const CalendarEvent = {
     },
 
     delete: async (eventId, userId) => {
+        const connection = await db.getConnection();
+        
         try {
-            console.log('Eliminando evento:', { eventId, userId });
-            const [result] = await db.execute(
+            await connection.beginTransaction();
+
+            // 1. Eliminar registros de estado (completado)
+            await connection.execute(
+                'DELETE FROM event_status WHERE event_id = ?',
+                [eventId]
+            );
+
+            // 2. Eliminar registros de ingredientes si existen
+            await connection.execute(
+                'DELETE FROM ingredient_checklist WHERE event_id = ?',
+                [eventId]
+            );
+
+            // 3. Finalmente eliminar el evento
+            const [result] = await connection.execute(
                 'DELETE FROM calendar_events WHERE id = ? AND user_id = ?',
                 [eventId, userId]
             );
+
+            await connection.commit();
             return result.affectedRows > 0;
         } catch (error) {
+            await connection.rollback();
             console.error('Error en delete:', error);
             throw error;
+        } finally {
+            connection.release();
         }
     },
 
@@ -194,34 +215,25 @@ const CalendarEvent = {
     },
 
     markAsCompleted: async (eventId, userId) => {
+        const connection = await db.getConnection();
         try {
-            // Primero verificamos si ya existe un registro
-            const [existing] = await db.execute(
-                'SELECT * FROM event_status WHERE event_id = ? AND user_id = ?',
+            await connection.beginTransaction();
+
+            // Insertar o actualizar el estado de completado
+            await connection.execute(
+                `INSERT INTO event_status (event_id, user_id, is_completed) 
+                 VALUES (?, ?, true)
+                 ON DUPLICATE KEY UPDATE is_completed = true`,
                 [eventId, userId]
             );
 
-            if (existing.length === 0) {
-                // Si no existe, creamos uno nuevo
-                await db.execute(
-                    `INSERT INTO event_status (event_id, user_id, is_completed, completed_at) 
-                     VALUES (?, ?, TRUE, CURRENT_TIMESTAMP)`,
-                    [eventId, userId]
-                );
-            } else {
-                // Si existe, actualizamos
-                await db.execute(
-                    `UPDATE event_status 
-                     SET is_completed = TRUE, completed_at = CURRENT_TIMESTAMP 
-                     WHERE event_id = ? AND user_id = ?`,
-                    [eventId, userId]
-                );
-            }
-
+            await connection.commit();
             return true;
         } catch (error) {
-            console.error('Error en markAsCompleted:', error);
+            await connection.rollback();
             throw error;
+        } finally {
+            connection.release();
         }
     },
 
@@ -234,48 +246,6 @@ const CalendarEvent = {
             return rows[0] || { is_completed: false, completed_at: null };
         } catch (error) {
             console.error('Error en getEventStatus:', error);
-            throw error;
-        }
-    },
-
-    updateIngredientChecklist: async (eventId, userId, ingredients) => {
-        try {
-            // Primero eliminamos los registros existentes
-            await db.execute(
-                'DELETE FROM ingredient_checklist WHERE event_id = ? AND user_id = ?',
-                [eventId, userId]
-            );
-
-            // Luego insertamos los nuevos estados
-            for (const [ingredient, isChecked] of Object.entries(ingredients)) {
-                await db.execute(
-                    `INSERT INTO ingredient_checklist 
-                     (event_id, user_id, ingredient_name, is_checked) 
-                     VALUES (?, ?, ?, ?)`,
-                    [eventId, userId, ingredient, isChecked]
-                );
-            }
-
-            return true;
-        } catch (error) {
-            console.error('Error en updateIngredientChecklist:', error);
-            throw error;
-        }
-    },
-
-    getIngredientChecklist: async (eventId, userId) => {
-        try {
-            const [rows] = await db.execute(
-                'SELECT ingredient_name, is_checked FROM ingredient_checklist WHERE event_id = ? AND user_id = ?',
-                [eventId, userId]
-            );
-
-            return rows.reduce((acc, row) => {
-                acc[row.ingredient_name] = row.is_checked;
-                return acc;
-            }, {});
-        } catch (error) {
-            console.error('Error en getIngredientChecklist:', error);
             throw error;
         }
     }

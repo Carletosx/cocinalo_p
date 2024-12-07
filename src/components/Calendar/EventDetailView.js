@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { IoMdClose } from 'react-icons/io';
+import Alert from '../Alert/Alert';
 import './EventDetailView.scss';
-import axios from 'axios';
 
-const EventDetailView = ({ event, onClose }) => {
+const EventDetailView = ({ event, onClose, onComplete, onDelete }) => {
     // Estado para el checklist de ingredientes
     const [ingredientChecklist, setIngredientChecklist] = useState({});
     // Estado para el temporizador
@@ -14,41 +14,16 @@ const EventDetailView = ({ event, onClose }) => {
         intervalId: null
     });
     // Estado para marcar la receta como completada
-    const [isCompleted, setIsCompleted] = useState(false);
+    const [isCompleted, setIsCompleted] = useState(event.isCompleted || false);
+    const [showAlert, setShowAlert] = useState(false);
 
     // Manejador para el checklist de ingredientes
-    const handleIngredientCheck = async (ingredient) => {
-        try {
-            const newChecklist = {
-                ...ingredientChecklist,
-                [ingredient]: !ingredientChecklist[ingredient]
-            };
-            
-            setIngredientChecklist(newChecklist);
-
-            await axios.post(`/calendar/events/${event.id}/checklist`, {
-                ingredients: newChecklist
-            });
-        } catch (error) {
-            console.error('Error al actualizar checklist:', error);
-        }
+    const handleIngredientCheck = (ingredient) => {
+        setIngredientChecklist(prev => ({
+            ...prev,
+            [ingredient]: !prev[ingredient]
+        }));
     };
-
-    // Cargar el estado del checklist al montar el componente
-    useEffect(() => {
-        const loadChecklist = async () => {
-            try {
-                const response = await axios.get(`/calendar/events/${event.id}/checklist`);
-                if (response.data.success) {
-                    setIngredientChecklist(response.data.data);
-                }
-            } catch (error) {
-                console.error('Error al cargar checklist:', error);
-            }
-        };
-
-        loadChecklist();
-    }, [event.id]);
 
     // Manejadores del temporizador
     const startTimer = () => {
@@ -83,19 +58,38 @@ const EventDetailView = ({ event, onClose }) => {
     // Manejador para completar la receta
     const handleComplete = async () => {
         try {
-            const response = await axios.post(`/calendar/events/${event.id}/complete`);
-            if (response.data.success) {
-                setIsCompleted(true);
-                // Opcional: Mostrar un mensaje de éxito
-            }
+            await onComplete(event.id);
+            setIsCompleted(true);
+            setShowAlert(true); // Mostrar alerta
+            
+            // Cerrar la vista después de un momento
+            setTimeout(() => {
+                onClose();
+            }, 1500);
         } catch (error) {
             console.error('Error al completar el evento:', error);
-            // Opcional: Mostrar un mensaje de error
+        }
+    };
+
+    const handleDelete = async () => {
+        try {
+            await onDelete(event.id);
+            onClose();
+        } catch (error) {
+            console.error('Error al eliminar el evento:', error);
         }
     };
 
     return (
         <div className="event-detail-view-overlay">
+            {showAlert && (
+                <Alert
+                    type="success"
+                    message={`¡La receta "${event.title}" ha sido marcada como completada!`}
+                    onClose={() => setShowAlert(false)}
+                />
+            )}
+            
             <div className="event-detail-view">
                 <div className="event-detail-header">
                     <h2>{event.title}</h2>
@@ -163,13 +157,22 @@ const EventDetailView = ({ event, onClose }) => {
                     </div>
 
                     {/* Botón de completado */}
-                    <button
-                        className={`complete-button ${isCompleted ? 'completed' : ''}`}
-                        onClick={handleComplete}
-                        disabled={isCompleted}
-                    >
-                        {isCompleted ? '✓ Completada' : 'Marcar como completada'}
-                    </button>
+                    <div className="action-buttons">
+                        <button
+                            className={`complete-button ${isCompleted ? 'completed' : ''}`}
+                            onClick={handleComplete}
+                            disabled={isCompleted}
+                        >
+                            {isCompleted ? '✓ Completada' : 'Marcar como completada'}
+                        </button>
+                        
+                        <button
+                            className="delete-button"
+                            onClick={handleDelete}
+                        >
+                            Eliminar
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
