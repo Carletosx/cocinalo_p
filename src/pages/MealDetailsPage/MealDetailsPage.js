@@ -42,7 +42,9 @@ const MealDetailsPage = () => {
                 year: formData.year,
                 timeFrom: formatTime(formData.timeFrom),
                 timeTo: formatTime(formData.timeTo),
-                recipeId: parseInt(meal.id_receta) || null
+                recipeId: parseInt(meal.id_receta) || null,
+                ingredients: meal.ingredientes || '',
+                instructions: meal.instrucciones || ''
             };
 
             console.log('Datos a enviar al servidor:', eventData);
@@ -99,6 +101,11 @@ const MealDetailsPage = () => {
                     selectedDate={new Date().getDate()}
                     currentDate={new Date()}
                     recipeName={meal.nombre_receta}
+                    initialData={{
+                        title: meal.nombre_receta,
+                        ingredients: meal.ingredientes,
+                        instructions: meal.instrucciones
+                    }}
                     onSubmit={handleEventSubmit}
                     onClose={() => setShowEventForm(false)}
                 />

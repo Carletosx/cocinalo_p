@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { IoMdClose } from 'react-icons/io';
 import Alert from '../Alert/Alert';
-import { useMealContext } from '../../context/mealContext';
 import './EventForm.scss';
 
 const EventForm = ({ 
@@ -14,7 +13,6 @@ const EventForm = ({
     isEditing,
     isViewOnly 
 }) => {
-    const { categoryMeals } = useMealContext();
     const [formData, setFormData] = useState(() => {
         if (initialData) {
             return {
@@ -23,7 +21,9 @@ const EventForm = ({
                     new Date(initialData.year, initialData.month - 1, initialData.day)
                 ),
                 timeFrom: initialData.timeFrom,
-                timeTo: initialData.timeTo
+                timeTo: initialData.timeTo,
+                ingredients: initialData.ingredients || '',
+                instructions: initialData.instructions || ''
             };
         }
 
@@ -31,21 +31,16 @@ const EventForm = ({
             new Date(currentDate.getFullYear(), currentDate.getMonth(), selectedDate)
         );
         
-        const now = new Date();
-        const defaultTimeFrom = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-        const laterHour = new Date(now.getTime() + 60 * 60 * 1000);
-        const defaultTimeTo = `${String(laterHour.getHours()).padStart(2, '0')}:${String(laterHour.getMinutes()).padStart(2, '0')}`;
-        
         return {
             title: recipeName || '',
             date: initialDate,
-            timeFrom: defaultTimeFrom,
-            timeTo: defaultTimeTo
+            timeFrom: '',
+            timeTo: '',
+            ingredients: '',
+            instructions: ''
         };
     });
 
-    const [suggestions, setSuggestions] = useState([]);
-    const [showSuggestions, setShowSuggestions] = useState(false);
     const [alert, setAlert] = useState({ show: false, message: '', type: '' });
 
     function formatDateForInput(date) {
@@ -95,22 +90,6 @@ const EventForm = ({
             ...prev,
             [name]: value
         }));
-
-        // Mostrar sugerencias solo para el campo título y cuando no es una receta predefinida
-        if (name === 'title' && !recipeName) {
-            if (value.trim()) { // Mostrar sugerencias si hay texto
-                const searchTerm = value.toLowerCase();
-                const filteredSuggestions = categoryMeals.filter(meal => 
-                    meal.nombre_receta.toLowerCase().includes(searchTerm)
-                );
-                console.log('Sugerencias encontradas:', filteredSuggestions); // Para debugging
-                setSuggestions(filteredSuggestions);
-                setShowSuggestions(true);
-            } else {
-                setSuggestions([]);
-                setShowSuggestions(false);
-            }
-        }
     };
 
     const handleSubmit = (e) => {
@@ -149,26 +128,11 @@ const EventForm = ({
         }
     };
 
-    const handleSelectSuggestion = (selectedRecipe) => {
-        setFormData(prev => ({
-            ...prev,
-            title: selectedRecipe.nombre_receta
-        }));
-        setSuggestions([]);
-        setShowSuggestions(false);
-    };
-
-    const getFormTitle = () => {
-        if (isViewOnly) return 'Detalles de la Receta';
-        if (isEditing) return 'Editar Receta';
-        return recipeName ? `Agendar: ${recipeName}` : 'Agregar Receta';
-    };
-
     return (
         <div className="event-form-overlay">
-            <div className="event-form">
+            <div className={`event-form ${isViewOnly ? 'view-mode' : ''}`}>
                 <div className="event-form-header">
-                    <h3>{getFormTitle()}</h3>
+                    <h3>{isEditing ? 'Editar Receta' : 'Agendar Receta'}</h3>
                     <button className="close-btn" onClick={onClose}>
                         <IoMdClose />
                     </button>
@@ -177,32 +141,15 @@ const EventForm = ({
                 <form onSubmit={handleSubmit}>
                     <div className="form-group">
                         <label htmlFor="title">Nombre de la Receta</label>
-                        <div className="input-container">
-                            <input
-                                type="text"
-                                id="title"
-                                name="title"
-                                value={formData.title}
-                                onChange={handleChange}
-                                placeholder="Ingresa el nombre de la receta"
-                                required
-                                readOnly={isViewOnly || !!recipeName}
-                                autoComplete="off"
-                            />
-                            {!isViewOnly && !recipeName && showSuggestions && suggestions.length > 0 && (
-                                <div className="suggestions-list">
-                                    {suggestions.map((recipe, idx) => (
-                                        <div 
-                                            key={recipe.id_receta || idx}
-                                            className="suggestion-item"
-                                            onClick={() => handleSelectSuggestion(recipe)}
-                                        >
-                                            {recipe.nombre_receta}
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
+                        <input
+                            type="text"
+                            id="title"
+                            name="title"
+                            value={formData.title}
+                            onChange={handleChange}
+                            required
+                            readOnly={isViewOnly}
+                        />
                     </div>
 
                     <div className="form-group">
@@ -246,6 +193,32 @@ const EventForm = ({
                                 step="60"
                             />
                         </div>
+                    </div>
+
+                    <div className="form-group">
+                        <label htmlFor="ingredients">Ingredientes (separados por comas)</label>
+                        <textarea
+                            id="ingredients"
+                            name="ingredients"
+                            value={formData.ingredients}
+                            onChange={handleChange}
+                            placeholder="Ej: papa, huevo, aceite"
+                            rows="3"
+                            readOnly={isViewOnly}
+                        />
+                    </div>
+
+                    <div className="form-group">
+                        <label htmlFor="instructions">Instrucciones (separadas por puntos)</label>
+                        <textarea
+                            id="instructions"
+                            name="instructions"
+                            value={formData.instructions}
+                            onChange={handleChange}
+                            placeholder="Ej: Pelar las papas. Hervir el agua. Freír los huevos."
+                            rows="4"
+                            readOnly={isViewOnly}
+                        />
                     </div>
 
                     {!isViewOnly && (

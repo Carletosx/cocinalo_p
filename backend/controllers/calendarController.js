@@ -31,62 +31,44 @@ const calendarController = {
     createEvent: async (req, res) => {
         try {
             const userId = req.user.id;
-            const { title, ...otherData } = req.body;
-            const cleanTitle = title.replace(/^0+/, ''); //Eliminar ceros iniciales
+            const { 
+                title, 
+                day, 
+                month, 
+                year, 
+                timeFrom, 
+                timeTo, 
+                recipeId,
+                ingredients,
+                instructions 
+            } = req.body;
+
+            const cleanTitle = title.replace(/^0+/, '');
             
             const eventData = {
                 title: cleanTitle,
-                ...otherData,
-                timeFrom: formatTime(otherData.timeFrom),
-                timeTo: formatTime(otherData.timeTo)
+                day,
+                month,
+                year,
+                timeFrom: formatTime(timeFrom),
+                timeTo: formatTime(timeTo),
+                recipeId,
+                ingredients,
+                instructions
             };
+
+            const result = await CalendarEvent.create(userId, eventData);
             
-            console.log('Datos recibidos en createEvent:', {
-                userId,
-                eventData,
-                headers: req.headers
-            });
-
-            // Validar datos requeridos
-            const requiredFields = ['title', 'day', 'month', 'year', 'timeFrom', 'timeTo'];
-            const missingFields = requiredFields.filter(field => !eventData[field]);
-            
-            if (missingFields.length > 0) {
-                return res.status(400).json({
-                    success: false,
-                    message: `Faltan campos requeridos: ${missingFields.join(', ')}`
-                });
-            }
-
-            // Validar formato de fecha y hora
-            if (!Number.isInteger(eventData.day) || 
-                !Number.isInteger(eventData.month) || 
-                !Number.isInteger(eventData.year)) {
-                return res.status(400).json({
-                    success: false,
-                    message: 'Los campos de fecha deben ser números enteros'
-                });
-            }
-
-            const newEvent = await CalendarEvent.create(userId, eventData);
-            console.log('Evento creado:', newEvent);
-
-            res.status(201).json({
+            res.json({
                 success: true,
-                data: newEvent,
-                message: 'Evento creado exitosamente'
+                message: 'Evento creado exitosamente',
+                data: result
             });
         } catch (error) {
-            console.error('Error detallado en createEvent:', {
-                message: error.message,
-                stack: error.stack,
-                userId: req.user?.id,
-                eventData: req.body
-            });
-            
+            console.error('Error al crear evento:', error);
             res.status(500).json({
                 success: false,
-                message: 'Error al crear evento',
+                message: 'Error al crear el evento',
                 error: error.message
             });
         }
@@ -160,33 +142,41 @@ const calendarController = {
 
     updateEvent: async (req, res) => {
         try {
-            const userId = req.user.id;
             const { eventId } = req.params;
-            const { title, ...otherData } = req.body;
-            const cleanTitle = title.replace(/^0+/, ''); //Eliminar ceros iniciales
-            
+            const userId = req.user.id;
+            const { 
+                title, 
+                day, 
+                month, 
+                year, 
+                timeFrom, 
+                timeTo, 
+                recipeId,
+                ingredients,
+                instructions 
+            } = req.body;
+
             const eventData = {
-                title: cleanTitle,
-                ...otherData,
-                timeFrom: formatTime(otherData.timeFrom),
-                timeTo: formatTime(otherData.timeTo)
+                title,
+                day,
+                month,
+                year,
+                timeFrom: formatTime(timeFrom),
+                timeTo: formatTime(timeTo),
+                recipeId,
+                ingredients,
+                instructions
             };
-            
-            const updatedEvent = await CalendarEvent.update(eventId, userId, eventData);
-            
-            if (!updatedEvent) {
-                return res.status(404).json({
-                    success: false,
-                    message: 'Evento no encontrado o no tienes permiso para editarlo'
-                });
-            }
+
+            const result = await CalendarEvent.update(eventId, userId, eventData);
             
             res.json({
                 success: true,
-                data: updatedEvent,
-                message: 'Evento actualizado exitosamente'
+                message: 'Evento actualizado exitosamente',
+                data: result
             });
         } catch (error) {
+            console.error('Error al actualizar evento:', error);
             res.status(500).json({
                 success: false,
                 message: 'Error al actualizar el evento',
