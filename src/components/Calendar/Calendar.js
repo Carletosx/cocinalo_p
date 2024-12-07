@@ -30,7 +30,12 @@ const Calendar = () => {
                 const response = await axios.get('/calendar/events');
                 console.log('Respuesta del servidor:', response.data);
                 if (response?.data?.data) {
-                    setRecipes(response.data.data);
+                    const processedRecipes = response.data.data.map(recipe => ({
+                        ...recipe,
+                        timeFrom: recipe.time_from ? recipe.time_from.slice(0, 5) : '',
+                        timeTo: recipe.time_to ? recipe.time_to.slice(0, 5) : ''
+                    }));
+                    setRecipes(processedRecipes);
                 }
             } catch (error) {
                 console.error('Error completo:', error);

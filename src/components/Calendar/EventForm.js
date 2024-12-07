@@ -85,7 +85,8 @@ const EventForm = ({
     const formatTime = (time) => {
         if (!time) return '';
         // Asegurarse de que el tiempo esté en formato HH:mm
-        return time.split(':').slice(0, 2).join(':');
+        const [hours, minutes] = time.split(':');
+        return `${hours.padStart(2, '0')}:${minutes.padStart(2, '0')}`;
     };
 
     const handleChange = (e) => {

@@ -3,8 +3,24 @@ import { IoMdClose, IoMdEye, IoMdCreate, IoIosCheckmarkCircle } from 'react-icon
 
 const CalendarGrid = ({ currentDate, events, onDateClick, onEventDelete, onEventView, onEventEdit }) => {
     const formatTimeDisplay = (time) => {
-        if (!time) return '';
-        return time.split(':').slice(0, 2).join(':');  // Solo toma HH:mm
+        if (!time || time === '-') return '';
+        
+        // Si el tiempo viene como objeto Date, convertirlo a string
+        if (time instanceof Date) {
+            return time.toLocaleTimeString('es-ES', { 
+                hour: '2-digit', 
+                minute: '2-digit',
+                hour12: false 
+            });
+        }
+
+        // Si el tiempo viene como string con segundos (HH:mm:ss), remover segundos
+        if (time.includes(':')) {
+            const [hours, minutes] = time.split(':');
+            return `${hours.padStart(2, '0')}:${minutes.padStart(2, '0')}`;
+        }
+
+        return time;
     };
 
     const getEventsForDate = (date) => {
@@ -120,9 +136,11 @@ const CalendarGrid = ({ currentDate, events, onDateClick, onEventDelete, onEvent
                                                 </button>
                                             </div>
                                         </div>
-                                        <span className="event-time">
-                                            🕒 {formatTimeDisplay(event.timeFrom)} - {formatTimeDisplay(event.timeTo)}
-                                        </span>
+                                        {event.timeFrom && event.timeTo && (
+                                            <span className="event-time">
+                                                🕒 {formatTimeDisplay(event.timeFrom)} - {formatTimeDisplay(event.timeTo)}
+                                            </span>
+                                        )}
                                     </div>
                                 ))}
                             </div>

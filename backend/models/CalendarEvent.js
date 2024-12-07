@@ -12,8 +12,8 @@ const CalendarEvent = {
                     ce.day,
                     ce.month,
                     ce.year,
-                    ce.time_from,
-                    ce.time_to,
+                    TIME_FORMAT(ce.time_from, '%H:%i') as timeFrom,
+                    TIME_FORMAT(ce.time_to, '%H:%i') as timeTo,
                     ce.recipe_id,
                     ce.created_at,
                     IF(COALESCE(es.is_completed, 0) = 1, true, false) as isCompleted
