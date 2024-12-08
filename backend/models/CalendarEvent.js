@@ -31,44 +31,39 @@ const CalendarEvent = {
 
     create: async (userId, eventData) => {
         try {
-            const { title, day, month, year, timeFrom, timeTo, recipeId } = eventData;
+            const { 
+                title, 
+                day, 
+                month, 
+                year, 
+                timeFrom, 
+                timeTo,
+                ingredients,
+                instructions 
+            } = eventData;
 
-            if (!title || !day || !month || !year || !timeFrom || !timeTo) {
-                throw new Error('Faltan campos requeridos');
-            }
-
-            const validatedData = {
-                day: parseInt(day),
-                month: parseInt(month),
-                year: parseInt(year)
-            };
-
-            const formatTime = (time) => time.split(':').slice(0, 2).join(':');
+            // Convertir arrays a strings si es necesario
+            const ingredientsStr = Array.isArray(ingredients) ? ingredients.join(', ') : ingredients;
+            const instructionsStr = Array.isArray(instructions) ? instructions.join('. ') : instructions;
 
             const [result] = await db.execute(
                 `INSERT INTO calendar_events 
-                (user_id, title, day, month, year, time_from, time_to, recipe_id) 
-                VALUES (?, ?, ?, ?, ?, STR_TO_DATE(?, '%H:%i'), STR_TO_DATE(?, '%H:%i'), ?)`,
-                [
-                    userId, 
-                    title, 
-                    validatedData.day, 
-                    validatedData.month, 
-                    validatedData.year, 
-                    formatTime(timeFrom), 
-                    formatTime(timeTo), 
-                    recipeId || null
-                ]
+                (user_id, title, day, month, year, time_from, time_to, ingredients, instructions) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                [userId, title, day, month, year, timeFrom, timeTo, ingredientsStr, instructionsStr]
             );
 
             return {
                 id: result.insertId,
                 userId,
                 title,
-                ...validatedData,
-                timeFrom: formatTime(timeFrom),
-                timeTo: formatTime(timeTo),
-                recipeId
+                day,
+                month,
+                year,
+                timeFrom,
+                timeTo,
+                ingredients: ingredients,
+                instructions: instructions
             };
         } catch (error) {
             console.error('Error en create:', error);
@@ -113,52 +108,52 @@ const CalendarEvent = {
 
     getById: async (eventId, userId) => {
         try {
-            console.log('Buscando evento:', { eventId, userId });
-
             const [rows] = await db.execute(`
                 SELECT 
-                    ce.id,
-                    ce.user_id as userId,
-                    ce.title,
-                    ce.day,
-                    ce.month,
-                    ce.year,
-                    TIME_FORMAT(ce.time_from, '%H:%i') as timeFrom,
-                    TIME_FORMAT(ce.time_to, '%H:%i') as timeTo,
-                    ce.recipe_id as recipeId,
-                    ce.created_at as createdAt,
-                    r.nombre_receta as recipeName,
-                    r.ingredientes as ingredients,
-                    r.instrucciones as instructions,
-                    r.tiempo_preparacion as prepTime
+                    ce.*,
+                    COALESCE(es.is_completed, false) as isCompleted
                 FROM calendar_events ce
-                LEFT JOIN recetas r ON ce.recipe_id = r.id_receta
-                WHERE ce.id = ? AND ce.user_id = ?
-                LIMIT 1`,
-                [parseInt(eventId), parseInt(userId)]
+                LEFT JOIN event_status es ON ce.id = es.event_id
+                WHERE ce.id = ? AND ce.user_id = ?`,
+                [eventId, userId]
             );
 
-            if (rows.length === 0) return null;
+            if (rows.length === 0) {
+                return null;
+            }
 
-            // Procesar los ingredientes e instrucciones
             const event = rows[0];
-            if (event.ingredients) {
-                event.ingredients = event.ingredients.split(',').map(i => i.trim());
-            } else {
-                event.ingredients = [];
-            }
 
-            if (event.instructions) {
-                event.instructions = event.instructions
-                    .split('.')
-                    .map(i => i.trim())
-                    .filter(i => i.length > 0);
-            } else {
-                event.instructions = [];
-            }
+            // Procesar ingredientes e instrucciones
+            const ingredients = event.ingredients ? 
+                (typeof event.ingredients === 'string' ? 
+                    event.ingredients.split(',').map(i => i.trim()) : 
+                    event.ingredients
+                ) : [];
 
-            console.log('Evento procesado:', event);
-            return event;
+            const instructions = event.instructions ? 
+                (typeof event.instructions === 'string' ? 
+                    event.instructions.split('.').filter(i => i.trim()).map(i => i.trim()) : 
+                    event.instructions
+                ) : [];
+
+            return {
+                id: event.id,
+                userId: event.user_id,
+                title: event.title,
+                day: event.day,
+                month: event.month,
+                year: event.year,
+                timeFrom: event.time_from,
+                timeTo: event.time_to,
+                recipeId: event.recipe_id,
+                createdAt: event.created_at,
+                recipeName: event.recipe_name,
+                ingredients: ingredients,
+                instructions: instructions,
+                prepTime: event.prep_time,
+                isCompleted: Boolean(event.isCompleted)
+            };
         } catch (error) {
             console.error('Error en getById:', error);
             throw error;
@@ -167,46 +162,37 @@ const CalendarEvent = {
 
     update: async (eventId, userId, eventData) => {
         try {
-            const { title, day, month, year, timeFrom, timeTo, recipeId } = eventData;
-            
-            const [result] = await db.execute(`
-                UPDATE calendar_events 
-                SET 
-                    title = ?,
-                    day = ?,
-                    month = ?,
-                    year = ?,
-                    time_from = TIME_FORMAT(?, '%H:%i'),
-                    time_to = TIME_FORMAT(?, '%H:%i'),
-                    recipe_id = ?
+            const { 
+                title, 
+                day, 
+                month, 
+                year, 
+                timeFrom, 
+                timeTo,
+                ingredients,
+                instructions 
+            } = eventData;
+
+            await db.execute(
+                `UPDATE calendar_events 
+                SET title = ?, day = ?, month = ?, year = ?, 
+                    time_from = ?, time_to = ?, 
+                    ingredients = ?, instructions = ?
                 WHERE id = ? AND user_id = ?`,
-                [
-                    title,
-                    parseInt(day),
-                    parseInt(month),
-                    parseInt(year),
-                    timeFrom,
-                    timeTo,
-                    recipeId || null,
-                    parseInt(eventId),
-                    parseInt(userId)
-                ]
+                [title, day, month, year, timeFrom, timeTo, ingredients, instructions, eventId, userId]
             );
 
-            if (result.affectedRows === 0) {
-                return null;
-            }
-
             return {
-                id: parseInt(eventId),
-                userId: parseInt(userId),
+                id: eventId,
+                userId,
                 title,
-                day: parseInt(day),
-                month: parseInt(month),
-                year: parseInt(year),
+                day,
+                month,
+                year,
                 timeFrom,
                 timeTo,
-                recipeId: recipeId || null
+                ingredients,
+                instructions
             };
         } catch (error) {
             console.error('Error en update:', error);

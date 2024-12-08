@@ -37,28 +37,33 @@ const calendarController = {
                 month, 
                 year, 
                 timeFrom, 
-                timeTo, 
-                recipeId,
+                timeTo,
                 ingredients,
                 instructions 
             } = req.body;
 
-            const cleanTitle = title.replace(/^0+/, '');
-            
-            const eventData = {
-                title: cleanTitle,
+            console.log('Datos recibidos:', {
+                title,
                 day,
                 month,
                 year,
-                timeFrom: formatTime(timeFrom),
-                timeTo: formatTime(timeTo),
-                recipeId,
+                timeFrom,
+                timeTo,
                 ingredients,
                 instructions
-            };
+            });
 
-            const result = await CalendarEvent.create(userId, eventData);
-            
+            const result = await CalendarEvent.create(userId, {
+                title,
+                day,
+                month,
+                year,
+                timeFrom,
+                timeTo,
+                ingredients,
+                instructions
+            });
+
             res.json({
                 success: true,
                 message: 'Evento creado exitosamente',
@@ -150,26 +155,22 @@ const calendarController = {
                 month, 
                 year, 
                 timeFrom, 
-                timeTo, 
-                recipeId,
+                timeTo,
                 ingredients,
                 instructions 
             } = req.body;
 
-            const eventData = {
+            const result = await CalendarEvent.update(eventId, userId, {
                 title,
                 day,
                 month,
                 year,
-                timeFrom: formatTime(timeFrom),
-                timeTo: formatTime(timeTo),
-                recipeId,
+                timeFrom,
+                timeTo,
                 ingredients,
                 instructions
-            };
+            });
 
-            const result = await CalendarEvent.update(eventId, userId, eventData);
-            
             res.json({
                 success: true,
                 message: 'Evento actualizado exitosamente',

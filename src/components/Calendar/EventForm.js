@@ -77,13 +77,6 @@ const EventForm = ({
         }));
     };
 
-    const formatTime = (time) => {
-        if (!time) return '';
-        // Asegurarse de que el tiempo esté en formato HH:mm
-        const [hours, minutes] = time.split(':');
-        return `${hours.padStart(2, '0')}:${minutes.padStart(2, '0')}`;
-    };
-
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({
@@ -92,39 +85,27 @@ const EventForm = ({
         }));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
+        const dateObj = new Date(formData.date);
         
-        if (!formData.timeFrom || !formData.timeTo) {
-            setAlert({
-                show: true,
-                message: 'Por favor completa todos los campos',
-                type: 'error'
-            });
-            return;
-        }
-
         try {
-            const selectedDate = new Date(formData.date + 'T00:00:00');
-            
-            const finalData = {
-                title: formData.title.trim(),
-                day: selectedDate.getDate(),
-                month: selectedDate.getMonth() + 1,
-                year: selectedDate.getFullYear(),
-                timeFrom: formatTime(formData.timeFrom),
-                timeTo: formatTime(formData.timeTo)
+            const eventData = {
+                title: formData.title,
+                day: dateObj.getDate(),
+                month: dateObj.getMonth() + 1,
+                year: dateObj.getFullYear(),
+                timeFrom: formData.timeFrom,
+                timeTo: formData.timeTo,
+                ingredients: formData.ingredients,
+                instructions: formData.instructions
             };
 
-            console.log('Datos a enviar:', finalData);
-            onSubmit(finalData);
+            await onSubmit(eventData);
+            onClose();
         } catch (error) {
-            console.error('Error en el formulario:', error);
-            setAlert({
-                show: true,
-                message: 'Error al procesar los datos del formulario',
-                type: 'error'
-            });
+            console.error('Error al guardar el evento:', error);
+            // Manejar el error aquí
         }
     };
 
@@ -202,7 +183,7 @@ const EventForm = ({
                             name="ingredients"
                             value={formData.ingredients}
                             onChange={handleChange}
-                            placeholder="Ej: papa, huevo, aceite"
+                            placeholder="Ej: 2 papas, 3 huevos, 1 taza de arroz"
                             rows="3"
                             readOnly={isViewOnly}
                         />
@@ -215,7 +196,7 @@ const EventForm = ({
                             name="instructions"
                             value={formData.instructions}
                             onChange={handleChange}
-                            placeholder="Ej: Pelar las papas. Hervir el agua. Freír los huevos."
+                            placeholder="Ej: Pelar las papas. Hervir el agua. Cocinar por 20 minutos."
                             rows="4"
                             readOnly={isViewOnly}
                         />
