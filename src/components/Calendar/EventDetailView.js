@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import{ IoMdClose } from 'react-icons/io';
+import Alert from '../Alert/Alert';
 import './EventDetailView.scss';
 
 const EventDetailView = ({ event, onClose, onComplete, onDelete }) => {
     const [isCompleted, setIsCompleted] = useState(event.isCompleted || false);
+    const [alert, setAlert] = useState({ show: false, message: '', type: '' });
     const [timer, setTimer] = useState({
         minutes: 0,
         seconds: 0,
@@ -94,92 +96,120 @@ const EventDetailView = ({ event, onClose, onComplete, onDelete }) => {
         try {
             await onComplete(event.id);
             setIsCompleted(true);
+            
+            // Mostrar alerta de éxito
+            setAlert({
+                show: true,
+                message: '¡Tarea completada exitosamente!',
+                type: 'success'
+            });
+            
+            // Cerrar la vista después de un delay
+            setTimeout(() => {
+                onClose();
+            }, 1000);
+            
         } catch (error) {
             console.error('Error al completar evento:', error);
+            setAlert({
+                show: true,
+                message: 'Error al completar la tarea',
+                type: 'error'
+            });
         }
     };
 
     return (
-        <div className="event-detail-view-overlay">
-            <div className="event-detail-view">
-                <div className="event-detail-header">
-                    <h2>{event.title}</h2>
-                    <button className="close-btn" onClick={onClose}>
-                        <IoMdClose />
-                    </button>
-                </div>
-
-                <div className="event-detail-content">
-                    <div className="time-section">
-                        <h3>Horario</h3>
-                        <p>🕒 {event.timeFrom} - {event.timeTo}</p>
+        <>
+            <div className="event-detail-view-overlay">
+                <div className="event-detail-view">
+                    <div className="event-detail-header">
+                        <h2>{event.title}</h2>
+                        <button className="close-btn" onClick={onClose}>
+                            <IoMdClose />
+                        </button>
                     </div>
 
-                    {ingredients && ingredients.length > 0 && (
-                        <div className="ingredients-section">
-                            <h3>Ingredientes</h3>
-                            <ul className="ingredients-list">
-                                {ingredients.map((ingredient, idx) => (
-                                    <li key={idx} className="ingredient-item">
-                                        <span className="bullet">•</span>
-                                        {ingredient}
-                                    </li>
-                                ))}
-                            </ul>
+                    <div className="event-detail-content">
+                        <div className="time-section">
+                            <h3>Horario</h3>
+                            <p>🕒 {event.timeFrom} - {event.timeTo}</p>
                         </div>
-                    )}
 
-                    {instructions && instructions.length > 0 && (
-                        <div className="instructions-section">
-                            <h3>Instrucciones</h3>
-                            <ol className="instructions-list">
-                                {instructions.map((instruction, idx) => (
-                                    <li key={idx} className="instruction-item">
-                                        {instruction}
-                                    </li>
-                                ))}
-                            </ol>
-                        </div>
-                    )}
+                        {ingredients && ingredients.length > 0 && (
+                            <div className="ingredients-section">
+                                <h3>Ingredientes</h3>
+                                <ul className="ingredients-list">
+                                    {ingredients.map((ingredient, idx) => (
+                                        <li key={idx} className="ingredient-item">
+                                            <span className="bullet">•</span>
+                                            {ingredient}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
 
-                    <div className="timer-section">
-                        <h3>Temporizador</h3>
-                        <div className="timer-display">
-                            {String(timer.minutes).padStart(2, '0')}:
-                            {String(timer.seconds).padStart(2, '0')}
+                        {instructions && instructions.length > 0 && (
+                            <div className="instructions-section">
+                                <h3>Instrucciones</h3>
+                                <ol className="instructions-list">
+                                    {instructions.map((instruction, idx) => (
+                                        <li key={idx} className="instruction-item">
+                                            {instruction}
+                                        </li>
+                                    ))}
+                                </ol>
+                            </div>
+                        )}
+
+                        <div className="timer-section">
+                            <h3>Temporizador</h3>
+                            <div className="timer-display">
+                                {String(timer.minutes).padStart(2, '0')}:
+                                {String(timer.seconds).padStart(2, '0')}
+                            </div>
+                           <div className="timer-controls">
+                                <button 
+                                    onClick={timer.isRunning ? stopTimer : startTimer}
+                                    className={timer.isRunning ? 'stop' : 'start'}
+                                >
+                                    {timer.isRunning ? 'Pausar' : 'Iniciar'}
+                                </button>
+                                <button onClick={resetTimer} className="reset">
+                                    Reiniciar
+                                </button>
+                            </div>
                         </div>
-                       <div className="timer-controls">
-                            <button 
-                                onClick={timer.isRunning ? stopTimer : startTimer}
-                                className={timer.isRunning ? 'stop' : 'start'}
+
+                        <div className="action-buttons">
+                            <button
+                                className={`complete-button ${isCompleted ? 'completed' : ''}`}
+                                onClick={handleComplete}
+                                disabled={isCompleted}
                             >
-                                {timer.isRunning ? 'Pausar' : 'Iniciar'}
+                                {isCompleted ? '✓ Completada' : 'Marcar como completada'}
                             </button>
-                            <button onClick={resetTimer} className="reset">
-                                Reiniciar
+                            
+                            <button
+                                className="delete-button"
+                                onClick={() => onDelete(event.id)}
+                            >
+                                Eliminar
                             </button>
                         </div>
-                    </div>
-
-                    <div className="action-buttons">
-                        <button
-                            className={`complete-button ${isCompleted ? 'completed' : ''}`}
-                            onClick={handleComplete}
-                            disabled={isCompleted}
-                        >
-                            {isCompleted ? '✓ Completada' : 'Marcar como completada'}
-                        </button>
-                        
-                        <button
-                            className="delete-button"
-                            onClick={() => onDelete(event.id)}
-                        >
-                            Eliminar
-                        </button>
                     </div>
                 </div>
             </div>
-        </div>
+            
+            {alert.show && (
+                <Alert
+                    message={alert.message}
+                    type={alert.type}
+                    onClose={() => setAlert({ show: false, message: '', type: '' })}
+                />
+            )}
+        </>
     );
 };
 
