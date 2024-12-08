@@ -13,17 +13,38 @@ const EventForm = ({
     isEditing,
     isViewOnly 
 }) => {
+    const cleanArrayData = (data) => {
+        if (!data) return '';
+        if (Array.isArray(data)) return data.join(', ');
+        if (typeof data === 'string') {
+            try {
+                // Si es un string que parece un array JSON, intentar parsearlo
+                if (data.startsWith('[')) {
+                    const parsed = JSON.parse(data);
+                    return Array.isArray(parsed) ? parsed.join(', ') : data;
+                }
+                return data;
+            } catch (e) {
+                return data;
+            }
+        }
+        return '';
+    };
+
     const [formData, setFormData] = useState(() => {
         if (initialData) {
+            console.log('Initial Data recibido:', initialData);
+
+            const eventDate = new Date(initialData.year, initialData.month - 1, initialData.day);
+            console.log('Fecha creada:', eventDate);
+
             return {
                 title: initialData.title,
-                date: formatDateForInput(
-                    new Date(initialData.year, initialData.month - 1, initialData.day)
-                ),
-                timeFrom: initialData.timeFrom,
-                timeTo: initialData.timeTo,
-                ingredients: initialData.ingredients || '',
-                instructions: initialData.instructions || ''
+                date: formatDateForInput(eventDate),
+                timeFrom: initialData.timeFrom ? initialData.timeFrom.slice(0, 5) : '',
+                timeTo: initialData.timeTo ? initialData.timeTo.slice(0, 5) : '',
+                ingredients: cleanArrayData(initialData.ingredients),
+                instructions: cleanArrayData(initialData.instructions)
             };
         }
 
@@ -52,12 +73,13 @@ const EventForm = ({
                 return new Date().toISOString().split('T')[0];
             }
 
-            const tzOffset = d.getTimezoneOffset() * 60000; // offset en milisegundos
-            const localDate = new Date(d.getTime() + tzOffset);
+            // Ajustar la fecha para la zona horaria local
+            const offset = d.getTimezoneOffset();
+            const adjustedDate = new Date(d.getTime() + (offset * 60 * 1000));
 
-            let month = (localDate.getMonth() + 1).toString();
-            let day = localDate.getDate().toString();
-            const year = localDate.getFullYear();
+            let month = (adjustedDate.getMonth() + 1).toString();
+            let day = adjustedDate.getDate().toString();
+            const year = adjustedDate.getFullYear();
 
             month = month.padStart(2, '0');
             day = day.padStart(2, '0');
@@ -70,10 +92,10 @@ const EventForm = ({
     }
 
     const handleDateChange = (e) => {
-        const newDate = e.target.value;
+        console.log('Nueva fecha seleccionada:', e.target.value);
         setFormData(prev => ({
             ...prev,
-            date: newDate
+            date: e.target.value
         }));
     };
 
@@ -87,7 +109,7 @@ const EventForm = ({
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const dateObj = new Date(formData.date);
+        const dateObj = new Date(formData.date + 'T00:00:00');
         
         try {
             const eventData = {
@@ -97,15 +119,22 @@ const EventForm = ({
                 year: dateObj.getFullYear(),
                 timeFrom: formData.timeFrom,
                 timeTo: formData.timeTo,
-                ingredients: formData.ingredients,
-                instructions: formData.instructions
+                ingredients: formData.ingredients.split(',').map(i => i.trim()).filter(Boolean),
+                instructions: formData.instructions.split('.').map(i => i.trim()).filter(Boolean)
             };
 
-            await onSubmit(eventData);
+            console.log('Enviando datos:', eventData);
+            
+            if (isEditing && initialData?.id) {
+                await onSubmit(initialData.id, eventData);
+            } else {
+                await onSubmit(eventData);
+            }
+            
             onClose();
         } catch (error) {
-            console.error('Error al guardar el evento:', error);
-            // Manejar el error aquí
+            console.error('Error en el formulario:', error);
+            // Aquí podrías mostrar un mensaje de error al usuario
         }
     };
 

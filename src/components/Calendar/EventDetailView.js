@@ -12,6 +12,7 @@ const EventDetailView = ({ event, onClose, onComplete, onDelete }) => {
         isRunning: false,
         intervalId: null
     });
+    const [checkedIngredients, setCheckedIngredients] = useState({});
 
     // Funciones del temporizador
     const startTimer = () => {
@@ -96,19 +97,14 @@ const EventDetailView = ({ event, onClose, onComplete, onDelete }) => {
         try {
             await onComplete(event.id);
             setIsCompleted(true);
-            
-            // Mostrar alerta de éxito
             setAlert({
                 show: true,
                 message: '¡Tarea completada exitosamente!',
                 type: 'success'
             });
-            
-            // Cerrar la vista después de un delay
             setTimeout(() => {
                 onClose();
             }, 1000);
-            
         } catch (error) {
             console.error('Error al completar evento:', error);
             setAlert({
@@ -117,6 +113,38 @@ const EventDetailView = ({ event, onClose, onComplete, onDelete }) => {
                 type: 'error'
             });
         }
+    };
+
+    const handleDelete = async () => {
+        try {
+            await onDelete(event.id);
+            setAlert({
+                show: true,
+                message: '¡Evento eliminado exitosamente!',
+                type: 'success'
+            });
+            setTimeout(() => {
+                onClose();
+            }, 1000);
+        } catch (error) {
+            console.error('Error al eliminar evento:', error);
+            setAlert({
+                show: true,
+                message: 'Error al eliminar el evento',
+                type: 'error'
+            });
+        }
+    };
+
+    const handleIngredientCheck = (index) => {
+        setCheckedIngredients(prev => ({
+            ...prev,
+            [index]: !prev[index]
+        }));
+    };
+
+    const formatTime = (time) => {
+        return time ? time.slice(0, 5) : '';
     };
 
     return (
@@ -133,7 +161,10 @@ const EventDetailView = ({ event, onClose, onComplete, onDelete }) => {
                     <div className="event-detail-content">
                         <div className="time-section">
                             <h3>Horario</h3>
-                            <p>🕒 {event.timeFrom} - {event.timeTo}</p>
+                            <p>
+                                <span className="time-icon">⏰</span>
+                                {formatTime(event.timeFrom)} - {formatTime(event.timeTo)}
+                            </p>
                         </div>
 
                         {ingredients && ingredients.length > 0 && (
@@ -142,8 +173,17 @@ const EventDetailView = ({ event, onClose, onComplete, onDelete }) => {
                                 <ul className="ingredients-list">
                                     {ingredients.map((ingredient, idx) => (
                                         <li key={idx} className="ingredient-item">
-                                            <span className="bullet">•</span>
-                                            {ingredient}
+                                            <label className="ingredient-checkbox">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={checkedIngredients[idx] || false}
+                                                    onChange={() => handleIngredientCheck(idx)}
+                                                />
+                                                <span className="checkmark"></span>
+                                                <span className={`ingredient-text ${checkedIngredients[idx] ? 'checked' : ''}`}>
+                                                    {ingredient}
+                                                </span>
+                                            </label>
                                         </li>
                                     ))}
                                 </ul>
@@ -193,7 +233,7 @@ const EventDetailView = ({ event, onClose, onComplete, onDelete }) => {
                             
                             <button
                                 className="delete-button"
-                                onClick={() => onDelete(event.id)}
+                                onClick={handleDelete}
                             >
                                 Eliminar
                             </button>

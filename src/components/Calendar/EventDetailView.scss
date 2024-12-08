@@ -16,236 +16,287 @@
 
 .event-detail-view {
     background: white;
-    border-radius: 15px;
+    border-radius: 20px;
     width: 90%;
     max-width: 600px;
     max-height: 85vh;
     overflow-y: auto;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
     animation: slideIn 0.3s ease-out;
 
-    &::-webkit-scrollbar {
-        width: 8px;
-    }
-
-    &::-webkit-scrollbar-track {
-        background: #f1f1f1;
-        border-radius: 10px;
-    }
-
-    &::-webkit-scrollbar-thumb {
+    .event-detail-header {
         background: $clr-orange;
-        border-radius: 10px;
-    }
-}
-
-.event-detail-header {
-    background: $clr-orange;
-    color: white;
-    padding: 20px;
-    border-radius: 15px 15px 0 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    position: sticky;
-    top: 0;
-    z-index: 1;
-
-    h2 {
-        margin: 0;
-        font-size: 1.5rem;
-        font-weight: 600;
-    }
-
-    .close-btn {
-        background: transparent;
-        border: none;
-        color: white;
-        font-size: 1.5rem;
-        cursor: pointer;
-        padding: 5px;
-        transition: transform 0.2s;
-
-        &:hover {
-            transform: scale(1.1);
-        }
-    }
-}
-
-.event-detail-content {
-    padding: 25px;
-    
-    .time-section {
-        background: #f8f9fa;
-        padding: 15px 20px;
-        border-radius: 10px;
-        margin-bottom: 20px;
+        padding: 1.5rem;
+        border-radius: 20px 20px 0 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
         
-        h3 {
-            color: $clr-orange;
-            margin-bottom: 10px;
-            font-size: 1.2rem;
-        }
-
-        p {
-            font-size: 1.1rem;
-            color: #2c3e50;
+        h2 {
+            color: white;
             margin: 0;
+            font-size: 1.8rem;
+            font-weight: 600;
         }
-    }
 
-    .ingredients-section, .instructions-section {
-        background: #fff;
-        padding: 20px;
-        border-radius: 10px;
-        margin-bottom: 20px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-
-        h3 {
-            color: $clr-orange;
-            margin-bottom: 15px;
-            font-size: 1.2rem;
-            border-bottom: 2px solid $clr-orange;
-            padding-bottom: 8px;
-        }
-    }
-
-    .ingredients-list {
-        list-style: none;
-        padding: 0;
-        
-        .ingredient-item {
+        .close-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
             display: flex;
             align-items: center;
-            padding: 8px 0;
-            
-            .bullet {
-                color: $clr-orange;
-                margin-right: 10px;
-                font-size: 1.2em;
-            }
-        }
-    }
-
-    .instructions-list {
-        padding-left: 25px;
-        
-        .instruction-item {
-            margin-bottom: 12px;
-            line-height: 1.5;
-            color: #2c3e50;
-            padding-left: 10px;
-            
-            &::marker {
-                color: $clr-orange;
-                font-weight: bold;
-            }
-        }
-    }
-
-    .timer-section {
-        background: #f8f9fa;
-        padding: 20px;
-        border-radius: 10px;
-        margin-bottom: 20px;
-        text-align: center;
-
-        h3 {
-            color: $clr-orange;
-            margin-bottom: 15px;
-            font-size: 1.2rem;
-        }
-
-        .timer-display {
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: #2c3e50;
-            margin: 15px 0;
-            font-family: monospace;
-        }
-
-        .timer-controls {
-            display: flex;
-            gap: 10px;
             justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+
+            &:hover {
+                background: rgba(255, 255, 255, 0.3);
+                transform: rotate(90deg);
+            }
+        }
+    }
+
+    .event-detail-content {
+        padding: 2rem;
+
+        .time-section {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+
+            h3 {
+                color: $clr-orange;
+                margin-bottom: 0.8rem;
+                font-size: 1.3rem;
+                font-weight: 600;
+            }
+
+            p {
+                font-size: 1.2rem;
+                color: #2c3e50;
+                margin: 0;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+        }
+
+        .ingredients-section, .instructions-section {
+            background: #fff;
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+
+            h3 {
+                color: $clr-orange;
+                margin-bottom: 1rem;
+                font-size: 1.3rem;
+                font-weight: 600;
+                border-bottom: 2px solid rgba($clr-orange, 0.2);
+                padding-bottom: 0.5rem;
+            }
+
+            ul, ol {
+                margin: 0;
+                padding-left: 1.5rem;
+
+                li {
+                    margin-bottom: 0.8rem;
+                    color: #2c3e50;
+                    line-height: 1.5;
+                }
+            }
+        }
+
+        .ingredients-section {
+            .ingredients-list {
+                list-style: none;
+                padding: 0;
+                margin: 0;
+
+                .ingredient-item {
+                    margin-bottom: 0.8rem;
+
+                    .ingredient-checkbox {
+                        display: flex;
+                        align-items: center;
+                        cursor: pointer;
+                        position: relative;
+                        padding-left: 35px;
+                        user-select: none;
+
+                        input {
+                            position: absolute;
+                            opacity: 0;
+                            cursor: pointer;
+                            height: 0;
+                            width: 0;
+                        }
+
+                        .checkmark {
+                            position: absolute;
+                            left: 0;
+                            height: 20px;
+                            width: 20px;
+                            background-color: #fff;
+                            border: 2px solid $clr-orange;
+                            border-radius: 4px;
+                            transition: all 0.2s ease;
+
+                            &:after {
+                                content: "";
+                                position: absolute;
+                                display: none;
+                                left: 6px;
+                                top: 2px;
+                                width: 5px;
+                                height: 10px;
+                                border: solid white;
+                                border-width: 0 2px 2px 0;
+                                transform: rotate(45deg);
+                            }
+                        }
+
+                        input:checked ~ .checkmark {
+                            background-color: $clr-orange;
+                            border-color: $clr-orange;
+
+                            &:after {
+                                display: block;
+                            }
+                        }
+
+                        &:hover .checkmark {
+                            background-color: rgba($clr-orange, 0.1);
+                        }
+
+                        .ingredient-text {
+                            margin-left: 10px;
+                            transition: all 0.2s ease;
+                            color: #2c3e50;
+
+                            &.checked {
+                                color: #6c757d;
+                                text-decoration: line-through;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        .timer-section {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin-bottom: 1.5rem;
+            text-align: center;
+
+            .timer-display {
+                font-size: 3rem;
+                font-weight: bold;
+                color: $clr-orange;
+                font-family: 'Courier New', monospace;
+                margin: 1rem 0;
+                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            }
+
+            .timer-controls {
+                display: flex;
+                gap: 1rem;
+                justify-content: center;
+
+                button {
+                    padding: 0.8rem 1.5rem;
+                    border: none;
+                    border-radius: 25px;
+                    font-size: 1rem;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    
+                    &.start {
+                        background: $clr-orange;
+                        color: white;
+                        
+                        &:hover {
+                            background: darken($clr-orange, 10%);
+                            transform: translateY(-2px);
+                        }
+                    }
+                    
+                    &.stop {
+                        background: #dc3545;
+                        color: white;
+                        
+                        &:hover {
+                            background: darken(#dc3545, 10%);
+                            transform: translateY(-2px);
+                        }
+                    }
+                    
+                    &.reset {
+                        background: #6c757d;
+                        color: white;
+                        
+                        &:hover {
+                            background: darken(#6c757d, 10%);
+                            transform: translateY(-2px);
+                        }
+                    }
+                }
+            }
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
 
             button {
-                padding: 10px 20px;
+                flex: 1;
+                padding: 1rem;
                 border: none;
                 border-radius: 25px;
-                font-size: 1rem;
+                font-size: 1.1rem;
+                font-weight: 500;
                 cursor: pointer;
-                transition: all 0.2s;
-                
-                &.start {
+                transition: all 0.3s ease;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+                &.complete-button {
                     background: $clr-orange;
                     color: white;
-                    
-                    &:hover {
+
+                    &:hover:not(:disabled) {
                         background: darken($clr-orange, 10%);
+                        transform: translateY(-2px);
+                    }
+
+                    &.completed {
+                        background: #28a745;
+                        cursor: default;
+                    }
+
+                    &:disabled {
+                        opacity: 0.7;
+                        cursor: not-allowed;
                     }
                 }
-                
-                &.stop {
+
+                &.delete-button {
                     background: #dc3545;
                     color: white;
-                    
+
                     &:hover {
                         background: darken(#dc3545, 10%);
+                        transform: translateY(-2px);
                     }
-                }
-                
-                &.reset {
-                    background: #6c757d;
-                    color: white;
-                    
-                    &:hover {
-                        background: darken(#6c757d, 10%);
-                    }
-                }
-            }
-        }
-    }
-
-    .action-buttons {
-        display: flex;
-        gap: 15px;
-        margin-top: 20px;
-
-        button {
-            flex: 1;
-            padding: 12px;
-            border: none;
-            border-radius: 25px;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.2s;
-
-            &.complete-button {
-                background: $clr-orange;
-                color: white;
-
-                &:hover:not(:disabled) {
-                    background: darken($clr-orange, 10%);
-                }
-
-                &.completed {
-                    background: #28a745;
-                    cursor: default;
-                }
-
-                &:disabled {
-                    opacity: 0.7;
-                    cursor: not-allowed;
-                }
-            }
-
-            &.delete-button {
-                background: #dc3545;
-                color: white;
-
-                &:hover {
-                    background: darken(#dc3545, 10%);
                 }
             }
         }

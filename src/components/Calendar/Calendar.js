@@ -28,7 +28,6 @@ const Calendar = () => {
         const fetchRecipes = async () => {
             try {
                 const response = await axios.get('/calendar/events');
-                console.log('Respuesta del servidor:', response.data);
                 if (response?.data?.data) {
                     const processedRecipes = response.data.data.map(recipe => ({
                         ...recipe,
@@ -38,7 +37,7 @@ const Calendar = () => {
                     setRecipes(processedRecipes);
                 }
             } catch (error) {
-                console.error('Error completo:', error);
+                console.error('Error al cargar las recetas:', error);
                 setAlert({
                     show: true,
                     message: 'Error al cargar las recetas',
@@ -48,7 +47,7 @@ const Calendar = () => {
         };
 
         fetchRecipes();
-    }, []);
+    }, [currentDate]);
 
     const handleRecipeAdd = async (recipeData) => {
         try {
@@ -184,18 +183,28 @@ const Calendar = () => {
         }
     };
 
-    const handleEventUpdate = async (eventData) => {
+    const handleEventUpdate = async (eventId, eventData) => {
         try {
-            const response = await axios.put(`/calendar/events/${selectedEvent.id}`, eventData);
-            if (response.data.success) {
-                setRecipes(prevRecipes => 
-                    prevRecipes.map(recipe => 
-                        recipe.id === selectedEvent.id ? response.data.data : recipe
-                    )
-                );
-                setShowRecipeForm(false);
+            console.log('Datos a enviar:', { eventId, eventData });
+            
+            const response = await axios.put(`/calendar/events/${eventId}`, eventData);
+            
+            if (response.data) {
+                // Recargar los eventos
+                const eventsResponse = await axios.get('/calendar/events');
+                if (eventsResponse?.data?.data) {
+                    const processedRecipes = eventsResponse.data.data.map(recipe => ({
+                        ...recipe,
+                        timeFrom: recipe.time_from ? recipe.time_from.slice(0, 5) : '',
+                        timeTo: recipe.time_to ? recipe.time_to.slice(0, 5) : ''
+                    }));
+                    setRecipes(processedRecipes);
+                }
+
                 setSelectedEvent(null);
+                setShowRecipeForm(false);
                 setIsEditing(false);
+
                 setAlert({
                     show: true,
                     message: 'Evento actualizado exitosamente',
@@ -203,9 +212,10 @@ const Calendar = () => {
                 });
             }
         } catch (error) {
+            console.error('Error detallado:', error.response || error);
             setAlert({
                 show: true,
-                message: 'Error al actualizar el evento',
+                message: 'Error al actualizar el evento: ' + (error.response?.data?.message || error.message),
                 type: 'error'
             });
         }

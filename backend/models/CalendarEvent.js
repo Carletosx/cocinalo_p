@@ -162,40 +162,64 @@ const CalendarEvent = {
 
     update: async (eventId, userId, eventData) => {
         try {
-            const { 
-                title, 
-                day, 
-                month, 
-                year, 
-                timeFrom, 
-                timeTo,
-                ingredients,
-                instructions 
-            } = eventData;
+            console.log('Datos recibidos en update:', { eventId, userId, eventData });
 
-            await db.execute(
+            // Asegurarnos de que los valores sean válidos
+            const sanitizedData = {
+                title: eventData.title || null,
+                day: eventData.day || null,
+                month: eventData.month || null,
+                year: eventData.year || null,
+                time_from: eventData.timeFrom || null,
+                time_to: eventData.timeTo || null,
+                ingredients: Array.isArray(eventData.ingredients) 
+                    ? JSON.stringify(eventData.ingredients)
+                    : (eventData.ingredients || null),
+                instructions: Array.isArray(eventData.instructions)
+                    ? JSON.stringify(eventData.instructions)
+                    : (eventData.instructions || null)
+            };
+
+            console.log('Datos sanitizados:', sanitizedData);
+
+            const [result] = await db.execute(
                 `UPDATE calendar_events 
-                SET title = ?, day = ?, month = ?, year = ?, 
-                    time_from = ?, time_to = ?, 
-                    ingredients = ?, instructions = ?
+                SET title = COALESCE(?, title), 
+                    day = COALESCE(?, day), 
+                    month = COALESCE(?, month), 
+                    year = COALESCE(?, year), 
+                    time_from = COALESCE(?, time_from), 
+                    time_to = COALESCE(?, time_to),
+                    ingredients = COALESCE(?, ingredients),
+                    instructions = COALESCE(?, instructions)
                 WHERE id = ? AND user_id = ?`,
-                [title, day, month, year, timeFrom, timeTo, ingredients, instructions, eventId, userId]
+                [
+                    sanitizedData.title,
+                    sanitizedData.day,
+                    sanitizedData.month,
+                    sanitizedData.year,
+                    sanitizedData.time_from,
+                    sanitizedData.time_to,
+                    sanitizedData.ingredients,
+                    sanitizedData.instructions,
+                    eventId,
+                    userId
+                ]
             );
+
+            console.log('Resultado de la actualización:', result);
+
+            if (result.affectedRows === 0) {
+                return null;
+            }
 
             return {
                 id: eventId,
                 userId,
-                title,
-                day,
-                month,
-                year,
-                timeFrom,
-                timeTo,
-                ingredients,
-                instructions
+                ...eventData
             };
         } catch (error) {
-            console.error('Error en update:', error);
+            console.error('Error detallado en update:', error);
             throw error;
         }
     },

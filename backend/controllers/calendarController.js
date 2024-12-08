@@ -147,41 +147,48 @@ const calendarController = {
 
     updateEvent: async (req, res) => {
         try {
-            const { eventId } = req.params;
+            const eventId = parseInt(req.params.eventId);
             const userId = req.user.id;
-            const { 
-                title, 
-                day, 
-                month, 
-                year, 
-                timeFrom, 
-                timeTo,
-                ingredients,
-                instructions 
-            } = req.body;
+            const eventData = req.body;
 
-            const result = await CalendarEvent.update(eventId, userId, {
-                title,
-                day,
-                month,
-                year,
-                timeFrom,
-                timeTo,
-                ingredients,
-                instructions
+            console.log('Datos recibidos para actualizar:', {
+                eventId,
+                userId,
+                eventData
             });
 
-            res.json({
-                success: true,
-                message: 'Evento actualizado exitosamente',
-                data: result
-            });
+            if (!eventId || isNaN(eventId)) {
+                return res.status(400).json({ 
+                    message: 'ID de evento inválido',
+                    receivedId: req.params.eventId 
+                });
+            }
+
+            const cleanData = {
+                title: eventData.title,
+                day: parseInt(eventData.day),
+                month: parseInt(eventData.month),
+                year: parseInt(eventData.year),
+                timeFrom: eventData.timeFrom,
+                timeTo: eventData.timeTo,
+                ingredients: eventData.ingredients,
+                instructions: eventData.instructions
+            };
+
+            console.log('Datos limpiados:', cleanData);
+
+            const updatedEvent = await CalendarEvent.update(eventId, userId, cleanData);
+            
+            if (!updatedEvent) {
+                return res.status(404).json({ message: 'Evento no encontrado' });
+            }
+
+            res.json(updatedEvent);
         } catch (error) {
-            console.error('Error al actualizar evento:', error);
-            res.status(500).json({
-                success: false,
+            console.error('Error en updateEvent:', error);
+            res.status(500).json({ 
                 message: 'Error al actualizar el evento',
-                error: error.message
+                error: error.message 
             });
         }
     },
