@@ -124,18 +124,62 @@ const CalendarEvent = {
 
             const event = rows[0];
 
-            // Procesar ingredientes e instrucciones
-            const ingredients = event.ingredients ? 
-                (typeof event.ingredients === 'string' ? 
-                    event.ingredients.split(',').map(i => i.trim()) : 
-                    event.ingredients
-                ) : [];
+            // Función para limpiar datos
+            const cleanData = (data) => {
+                if (!data) return [];
+                
+                try {
+                    // Si es un string, intentar parsearlo
+                    if (typeof data === 'string') {
+                        // Primero, eliminar todos los caracteres de escape extras
+                        const cleanString = data.replace(/\\+"/g, '"')
+                                              .replace(/\\\\/g, '')
+                                              .replace(/\[\[+/g, '[')
+                                              .replace(/\]\]+/g, ']')
+                                              .replace(/^"|"$/g, '');
+                        
+                        // Intentar parsear el string limpio
+                        const parsed = JSON.parse(cleanString);
+                        
+                        // Si es un array, limpiar cada elemento
+                        if (Array.isArray(parsed)) {
+                            return parsed.map(item => {
+                                if (typeof item === 'string') {
+                                    return item.replace(/\\+"/g, '"')
+                                             .replace(/\[\[+|\]\]+/g, '')
+                                             .replace(/^"|"$/g, '')
+                                             .trim();
+                                }
+                                return item;
+                            });
+                        }
+                        return [parsed];
+                    }
+                    
+                    // Si ya es un array, limpiarlo
+                    if (Array.isArray(data)) {
+                        return data.map(item => {
+                            if (typeof item === 'string') {
+                                return item.replace(/\\+"/g, '"')
+                                         .replace(/\[\[+|\]\]+/g, '')
+                                         .replace(/^"|"$/g, '')
+                                         .trim();
+                            }
+                            return item;
+                        });
+                    }
+                    
+                    return [data];
+                } catch (e) {
+                    console.error('Error al limpiar datos:', e);
+                    // Si hay error, devolver el dato original en un array
+                    return typeof data === 'string' ? [data] : [];
+                }
+            };
 
-            const instructions = event.instructions ? 
-                (typeof event.instructions === 'string' ? 
-                    event.instructions.split('.').filter(i => i.trim()).map(i => i.trim()) : 
-                    event.instructions
-                ) : [];
+            // Limpiar ingredientes e instrucciones
+            const ingredients = cleanData(event.ingredients);
+            const instructions = cleanData(event.instructions);
 
             return {
                 id: event.id,
@@ -162,9 +206,55 @@ const CalendarEvent = {
 
     update: async (eventId, userId, eventData) => {
         try {
-            console.log('Datos recibidos en update:', { eventId, userId, eventData });
+            // Función para limpiar datos anidados
+            const deepClean = (data) => {
+                if (!data) return null;
+                
+                // Si es un string que parece un array JSON
+                if (typeof data === 'string' && data.includes('[')) {
+                    try {
+                        // Intentar parsear el string
+                        let parsed = JSON.parse(data);
+                        // Si es un array, limpiarlo recursivamente
+                        if (Array.isArray(parsed)) {
+                            parsed = parsed.map(item => {
+                                if (typeof item === 'string') {
+                                    // Limpiar caracteres de escape y corchetes extras
+                                    return item.replace(/\\+"/g, '"')
+                                             .replace(/^\[+"|"+\]+$/g, '')
+                                             .replace(/\\+/g, '');
+                                }
+                                return item;
+                            });
+                        }
+                        return parsed;
+                    } catch (e) {
+                        // Si falla el parsing, limpiar el string directamente
+                        return data.replace(/\\+"/g, '"')
+                                 .replace(/^\[+"|"+\]+$/g, '')
+                                 .replace(/\\+/g, '');
+                    }
+                }
+                
+                // Si es un array
+                if (Array.isArray(data)) {
+                    return data.map(item => {
+                        if (typeof item === 'string') {
+                            return item.replace(/\\+"/g, '"')
+                                     .replace(/^\[+"|"+\]+$/g, '')
+                                     .replace(/\\+/g, '');
+                        }
+                        return item;
+                    });
+                }
+                
+                return data;
+            };
 
-            // Asegurarnos de que los valores sean válidos
+            // Limpiar y preparar los datos
+            const cleanIngredients = deepClean(eventData.ingredients);
+            const cleanInstructions = deepClean(eventData.instructions);
+
             const sanitizedData = {
                 title: eventData.title || null,
                 day: eventData.day || null,
@@ -172,15 +262,16 @@ const CalendarEvent = {
                 year: eventData.year || null,
                 time_from: eventData.timeFrom || null,
                 time_to: eventData.timeTo || null,
-                ingredients: Array.isArray(eventData.ingredients) 
-                    ? JSON.stringify(eventData.ingredients)
-                    : (eventData.ingredients || null),
-                instructions: Array.isArray(eventData.instructions)
-                    ? JSON.stringify(eventData.instructions)
-                    : (eventData.instructions || null)
+                ingredients: Array.isArray(cleanIngredients) ? cleanIngredients : [cleanIngredients],
+                instructions: Array.isArray(cleanInstructions) ? cleanInstructions : [cleanInstructions]
             };
 
-            console.log('Datos sanitizados:', sanitizedData);
+            // Convertir arrays a strings simples para la base de datos
+            const dataForDb = {
+                ...sanitizedData,
+                ingredients: JSON.stringify(sanitizedData.ingredients),
+                instructions: JSON.stringify(sanitizedData.instructions)
+            };
 
             const [result] = await db.execute(
                 `UPDATE calendar_events 
@@ -190,33 +281,32 @@ const CalendarEvent = {
                     year = COALESCE(?, year), 
                     time_from = COALESCE(?, time_from), 
                     time_to = COALESCE(?, time_to),
-                    ingredients = COALESCE(?, ingredients),
-                    instructions = COALESCE(?, instructions)
+                    ingredients = ?,
+                    instructions = ?
                 WHERE id = ? AND user_id = ?`,
                 [
-                    sanitizedData.title,
-                    sanitizedData.day,
-                    sanitizedData.month,
-                    sanitizedData.year,
-                    sanitizedData.time_from,
-                    sanitizedData.time_to,
-                    sanitizedData.ingredients,
-                    sanitizedData.instructions,
+                    dataForDb.title,
+                    dataForDb.day,
+                    dataForDb.month,
+                    dataForDb.year,
+                    dataForDb.time_from,
+                    dataForDb.time_to,
+                    dataForDb.ingredients,
+                    dataForDb.instructions,
                     eventId,
                     userId
                 ]
             );
 
-            console.log('Resultado de la actualización:', result);
-
             if (result.affectedRows === 0) {
                 return null;
             }
 
+            // Devolver los datos limpios
             return {
                 id: eventId,
                 userId,
-                ...eventData
+                ...sanitizedData
             };
         } catch (error) {
             console.error('Error detallado en update:', error);
