@@ -12,43 +12,23 @@ import RegisterForm from './components/Auth/RegisterForm';
 
 const AppContent = () => {
     const location = useLocation();
-    const isCalendarPage = location.pathname === '/calendar';
     const isAuthPage = ['/login', '/register'].includes(location.pathname);
 
     return (
         <div className='main-holder'>
-            {isCalendarPage ? (
-                <>
-                    <Header showOnlyNavbar={true} />
-                    <main className='main-content'>
-                        <Routes>
-                            <Route 
-                                path="/calendar" 
-                                element={
-                                    <ProtectedRoute>
-                                        <CalendarPage />
-                                    </ProtectedRoute>
-                                } 
-                            />
-                        </Routes>
-                    </main>
-                </>
-            ) : (
-                <>
-                    <Header showOnlyNavbar={isAuthPage} />
-                    {!isAuthPage && <Sidebar />}
-                    <main className='main-content'>
-                        <Routes>
-                            <Route path="/" element={<Home />} />
-                            <Route path="/meal/:id" element={<MealDetails />} />
-                            <Route path="/meal/category/:name" element={<Category />} />
-                            <Route path="/login" element={<PublicRoute><LoginForm /></PublicRoute>} />
-                            <Route path="/register" element={<PublicRoute><RegisterForm /></PublicRoute>} />
-                            <Route path="*" element={<Error />} />
-                        </Routes>
-                    </main>
-                </>
-            )}
+            <Header showOnlyNavbar={isAuthPage} />
+            {!isAuthPage && <Sidebar />}
+            <main className='main-content'>
+                <Routes>
+                    <Route path="/" element={<Home />} />
+                    <Route path="/meal/:id" element={<MealDetails />} />
+                    <Route path="/meal/category/:name" element={<Category />} />
+                    <Route path="/calendar" element={<ProtectedRoute><CalendarPage /></ProtectedRoute>} />
+                    <Route path="/login" element={<PublicRoute><LoginForm /></PublicRoute>} />
+                    <Route path="/register" element={<PublicRoute><RegisterForm /></PublicRoute>} />
+                    <Route path="*" element={<Error />} />
+                </Routes>
+            </main>
         </div>
     );
 };
