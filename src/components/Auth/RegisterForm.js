@@ -84,7 +84,7 @@ const RegisterForm = () => {
                 <h2>Registro</h2>
                 {error && <div className="error-message">{error}</div>}
                 
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={handleSubmit} data-testid="register-form">
                     <div className="form-row">
                         <div className="form-group">
                             <label htmlFor="nombre">Nombre</label>

@@ -32,7 +32,7 @@ const Alert = ({ message, type = 'error', onClose }) => {
 
   return (
     <div className="alert-overlay">
-      <div className={`alert alert-${type}`}>
+      <div className={`alert alert-${type}`} role="alert" aria-live="polite">
         <div className="alert-icon">
           {getAlertIcon()}
         </div>
@@ -40,7 +40,11 @@ const Alert = ({ message, type = 'error', onClose }) => {
           <h3>{getAlertTitle()}</h3>
           <p>{message}</p>
         </div>
-        <button className="alert-close" onClick={onClose}>
+        <button 
+          className="alert-close" 
+          onClick={onClose}
+          aria-label="Cerrar alerta"
+        >
           <IoMdClose size={28} />
         </button>
       </div>
