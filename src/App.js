@@ -13,10 +13,11 @@ import RegisterForm from './components/Auth/RegisterForm';
 const AppContent = () => {
     const location = useLocation();
     const isAuthPage = ['/login', '/register'].includes(location.pathname);
+    const isCalendarPage = location.pathname === '/calendar';
 
     return (
         <div className='main-holder'>
-            <Header showOnlyNavbar={isAuthPage} />
+            <Header showOnlyNavbar={isAuthPage || isCalendarPage} />
             {!isAuthPage && <Sidebar />}
             <main className='main-content'>
                 <Routes>

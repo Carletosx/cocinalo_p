@@ -25,7 +25,13 @@ const SearchForm = () => {
     if (!searchTerm.trim()) return;
 
     try {
-      const data = await searchRecipes(searchTerm);
+      const normalizedSearchTerm = searchTerm
+        .trim()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
+
+      const data = await searchRecipes(normalizedSearchTerm);
       
       if (!data || data.length === 0) {
         setShowAlert(true);
