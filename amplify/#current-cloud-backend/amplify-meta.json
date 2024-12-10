@@ -1,0 +1,15 @@
+{
+  "providers": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-cocinalo-dev-eb536-authRole",
+      "UnauthRoleArn": "arn:aws:iam::183295427363:role/amplify-cocinalo-dev-eb536-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::183295427363:role/amplify-cocinalo-dev-eb536-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-cocinalo-dev-eb536-deployment",
+      "UnauthRoleName": "amplify-cocinalo-dev-eb536-unauthRole",
+      "StackName": "amplify-cocinalo-dev-eb536",
+      "StackId": "arn:aws:cloudformation:us-east-1:183295427363:stack/amplify-cocinalo-dev-eb536/3bfd5920-b69b-11ef-b941-12bde3bf11e3",
+      "AmplifyAppId": "d3c5s7z5tnjqsj"
+    }
+  }
+}
