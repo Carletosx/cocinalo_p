@@ -3,7 +3,6 @@ frontend:
   phases:
     preBuild:
       commands:
-        - nvm use 18.18.2
         - npm ci --legacy-peer-deps
     build:
       commands:
