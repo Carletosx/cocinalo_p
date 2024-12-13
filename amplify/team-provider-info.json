@@ -1,0 +1,20 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-cocinalo-dev-73484-authRole",
+      "UnauthRoleArn": "arn:aws:iam::183295427363:role/amplify-cocinalo-dev-73484-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::183295427363:role/amplify-cocinalo-dev-73484-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-cocinalo-dev-73484-deployment",
+      "UnauthRoleName": "amplify-cocinalo-dev-73484-unauthRole",
+      "StackName": "amplify-cocinalo-dev-73484",
+      "StackId": "arn:aws:cloudformation:us-east-1:183295427363:stack/amplify-cocinalo-dev-73484/ddc53d70-b909-11ef-b05e-0ed90967629b",
+      "AmplifyAppId": "d10oryae8cj1n6"
+    },
+    "categories": {
+      "auth": {
+        "cocinaloc5968c2e": {}
+      }
+    }
+  }
+}

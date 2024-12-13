@@ -3,7 +3,8 @@ frontend:
   phases:
     preBuild:
       commands:
-        - npm ci
+        - nvm use 18.18.2
+        - npm ci --legacy-peer-deps
     build:
       commands:
         - npm run build
@@ -14,3 +15,4 @@ frontend:
   cache:
     paths:
       - node_modules/**/*
+      - .npm/**/*
