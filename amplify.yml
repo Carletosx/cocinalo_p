@@ -1,4 +1,10 @@
 version: 1
+backend:
+  phases:
+    build:
+      commands:
+        - npm ci
+        - amplify push --yes
 frontend:
   phases:
     preBuild:
@@ -14,4 +20,4 @@ frontend:
   cache:
     paths:
       - node_modules/**/*
-      - .npm/**/*
+      - .npm/**/* 
